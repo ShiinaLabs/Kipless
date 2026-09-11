@@ -35,6 +35,8 @@ targets:
       - path: Kipless
         excludes:
           - Info.plist
+    resources:
+      - path: Kipless/Resources/Localizable.xcstrings
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.kaoru.kipless
@@ -54,6 +56,16 @@ targets:
         LSUIElement: true
         NSHumanReadableCopyright: Copyright © 2026 Kaoru. Licensed under MPL-2.0.
 
+  KiplessPowerTestHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: KiplessPowerTestHelper
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kaoru.kipless.power-test-helper
+        PRODUCT_NAME: KiplessPowerTestHelper
+
   KiplessTests:
     type: bundle.unit-test
     platform: macOS
@@ -69,6 +81,11 @@ targets:
         TEST_HOST: $(BUILT_PRODUCTS_DIR)/Kipless.app/Contents/MacOS/Kipless
 
 schemes:
+  KiplessPowerTestHelper:
+    build:
+      targets:
+        KiplessPowerTestHelper: all
+
   Kipless:
     build:
       targets:

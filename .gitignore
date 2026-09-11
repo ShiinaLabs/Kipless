@@ -15,6 +15,7 @@ Package.resolved
 
 # XcodeGen output is committed, but its scratch dir is not
 # (Kipless.xcodeproj is checked in so contributors need no extra tooling)
+.build/
 
 # macOS
 .DS_Store

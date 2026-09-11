@@ -8,16 +8,15 @@ enum SessionCountdown {
         if seconds >= 3600 {
             let hours = seconds / 3600
             let minutes = (seconds % 3600) / 60
-            let hourPart = hours == 1 ? "1 hr" : "\(hours) hr"
             return minutes == 0
-                ? "\(hourPart) remaining"
-                : "\(hourPart) \(minutes) min remaining"
+                ? String(localized: KiplessStrings.countdownHours(hours))
+                : String(localized: KiplessStrings.countdownHoursAndMinutes(hours, minutes))
         }
 
         if seconds >= 60 {
-            return "\(seconds / 60) min remaining"
+            return String(localized: KiplessStrings.countdownMinutes(seconds / 60))
         }
 
-        return "Less than a minute remaining"
+        return String(localized: KiplessStrings.countdownLessThanMinute)
     }
 }

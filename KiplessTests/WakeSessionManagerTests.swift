@@ -60,6 +60,29 @@ final class WakeSessionManagerTests: XCTestCase {
         XCTAssertEqual(manager.session?.mode, .display)
     }
 
+    func testSwitchingFromDisplayToSystemKeepsOneAssertion() {
+        manager.start(mode: .display, duration: .indefinite)
+        manager.start(mode: .system, duration: .indefinite)
+
+        XCTAssertEqual(manager.session?.mode, .system)
+        XCTAssertEqual(assertions.maxHeldCount, 1)
+        XCTAssertEqual(assertions.events, [
+            .release, .acquire(.display), .release, .acquire(.system)
+        ])
+    }
+
+    func testFailedReplacementLeavesTheManagerInactiveAndReleasesTheOldAssertion() {
+        manager.start(mode: .system, duration: .indefinite)
+        assertions.errorToThrow = SleepAssertionError.creationFailed(mode: .display, code: -1)
+
+        manager.start(mode: .display, duration: .indefinite)
+
+        XCTAssertFalse(manager.isActive)
+        XCTAssertNil(manager.session)
+        XCTAssertFalse(assertions.isHolding)
+        XCTAssertEqual(assertions.maxHeldCount, 1)
+    }
+
     // MARK: - Stopping
 
     func testStopReleasesAssertionAndDeactivates() {

@@ -10,6 +10,10 @@ struct MenuBarLabel: View {
 
     var body: some View {
         Image(systemName: isActive ? "bolt.fill" : "bolt.slash")
-            .accessibilityLabel(isActive ? "Kipless is keeping your Mac awake" : "Kipless is inactive")
+            .accessibilityLabel(
+                isActive
+                    ? String(localized: KiplessStrings.menuStatusActive)
+                    : String(localized: KiplessStrings.menuStatusInactive)
+            )
     }
 }

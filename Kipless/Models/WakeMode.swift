@@ -15,16 +15,16 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
     /// User-facing name for the mode picker.
     var title: String {
         switch self {
-        case .system: "Keep Mac Awake"
-        case .display: "Keep Mac + Display Awake"
+        case .system: String(localized: KiplessStrings.modeSystemTitle)
+        case .display: String(localized: KiplessStrings.modeDisplayTitle)
         }
     }
 
     /// Explains the scope of the mode without exposing assertion details.
     var subtitle: String {
         switch self {
-        case .system: "Display may sleep normally."
-        case .display: "Screen stays on; Mac wake included."
+        case .system: String(localized: KiplessStrings.modeSystemSubtitle)
+        case .display: String(localized: KiplessStrings.modeDisplaySubtitle)
         }
     }
 

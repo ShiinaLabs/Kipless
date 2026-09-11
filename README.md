@@ -9,11 +9,11 @@ you ask it to.
 
 ## Features
 
-- **Keep Mac Awake** — blocks idle *system* sleep. Your display still turns off
-  on its own schedule, so a long download can finish with the screen dark.
-- **Keep Mac + Display Awake** — blocks idle *display* sleep. Keeping the screen
-  on necessarily keeps the Mac awake too, making this a single, higher-scope
-  mode for dashboards, reference material, reading and presentations.
+- **Let the screen turn off** — keeps your Mac working while the display may
+  turn off on its own schedule, so a long download can finish with the screen
+  dark.
+- **Keep the screen on** — keeps both the Mac and display awake for dashboards,
+  reference material, reading and presentations.
 - **Timed wake sessions** — 15 minutes, 30 minutes, 1 hour, 2 hours, or
   indefinitely.
 - **Lightweight menu bar interface** — no Dock icon, no main window, no
@@ -71,11 +71,37 @@ Run the tests with `⌘U` in Xcode, or:
 xcodebuild -project Kipless.xcodeproj -scheme Kipless test
 ```
 
+### Automated testing
+
+The repository provides three test layers:
+
+```sh
+# Fast deterministic unit tests (the CI equivalent)
+xcodebuild test -project Kipless.xcodeproj -scheme Kipless -configuration Debug \
+  -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+
+# Local integration run against real macOS power assertions
+./scripts/test-integration.sh
+
+# Release gate: tests, Release build, real power assertions, app smoke test,
+# bundle metadata, signature, and final assertion leak check
+./scripts/preflight.sh
+```
+
+The integration and preflight scripts run on a local Mac because they inspect
+real IOKit power assertions with `pmset`. They do not wait for real sleep or
+long session durations. The test helper is a separate executable and is never
+packaged into `Kipless.app`.
+
 The app icon is generated from `scripts/make-icon.py` into the asset catalog:
 
 ```sh
 python3 scripts/make-icon.py
 ```
+
+User-facing copy uses semantic localization keys with English fallback values.
+The String Catalog lives at `Kipless/Resources/Localizable.xcstrings`; add
+future languages there without changing the sleep-control implementation.
 
 ## Privacy
 

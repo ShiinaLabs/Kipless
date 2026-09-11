@@ -17,7 +17,7 @@ enum SleepAssertionError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case let .creationFailed(mode, code):
-            "Could not keep the \(mode.title.lowercased()) awake (IOKit error \(code))."
+            String(localized: KiplessStrings.assertionCreationError(mode: mode.title.lowercased(), code: code))
         }
     }
 }

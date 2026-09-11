@@ -696,13 +696,17 @@ No Cloud
 
 # 23. 本地化
 
-v1.0：
+当前版本先提供英文源文案，但从第一版开始保留国际化基础：
 
 ```text
-English only
+Semantic localization keys
+English fallback values
+Localizable.xcstrings
 ```
 
-原因：
+Swift 代码只引用语义化 key，不直接把英文文案作为 key。英文默认值与 String Catalog 中的英文资源保持一致；后续增加中文、日文等语言时，只需在 Catalog 中补充对应本地化，不需要修改睡眠控制逻辑或界面代码。
+
+保留英文作为默认语言的原因：
 
 * UI 文本非常少
 * 初期迭代速度更重要
@@ -1213,6 +1217,35 @@ Automation rules
 ```
 
 不提前承诺 Roadmap。
+
+---
+
+# 40.1 自动化测试落地
+
+当前测试体系已经按三层执行入口落地：
+
+```text
+Fast CI
+    ↓
+./scripts/test-integration.sh
+    ↓
+./scripts/preflight.sh
+```
+
+已完成：
+
+```text
+[x] WakeSessionManager 生命周期、替换与失败路径单元测试
+[x] KiplessPowerTestHelper 独立 IOKit 测试目标
+[x] System / Display assertion 创建与释放测试
+[x] System ↔ Display 替换测试
+[x] SIGKILL 后 assertion 清理测试
+[x] Release App smoke、Bundle metadata、代码签名检查
+[x] CI Debug 单元测试与 unsigned Release build
+[x] 手动 Release 的 version/tag 归一化
+```
+
+本机真实电源断言测试只检查短时创建、释放、替换和异常退出清理，不等待真实息屏、睡眠或长时 Session；8 小时和 24 小时稳定性仍属于发布前的人工长时验证。
 
 ---
 

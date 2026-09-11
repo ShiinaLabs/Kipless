@@ -18,11 +18,20 @@ jobs:
       - name: Show toolchain
         run: xcodebuild -version
 
-      - name: Build and test
+      - name: Debug unit tests
         run: |
           xcodebuild test \
             -project Kipless.xcodeproj \
             -scheme Kipless \
             -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Release build
+        run: |
+          xcodebuild build \
+            -project Kipless.xcodeproj \
+            -scheme Kipless \
+            -configuration Release \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO

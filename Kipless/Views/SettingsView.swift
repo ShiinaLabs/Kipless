@@ -1,8 +1,13 @@
 import SwiftUI
 
 enum SettingsCopy {
-    static let launchAtLoginDescription = "Start Kipless automatically when you sign in."
-    static let aboutDescription = "Lightweight and private."
+    static var launchAtLoginDescription: String {
+        String(localized: KiplessStrings.settingsLaunchAtLoginDescription)
+    }
+
+    static var aboutDescription: String {
+        String(localized: KiplessStrings.settingsAboutDescription)
+    }
 }
 
 /// A compact, single-column settings window for the small v1 surface area.
@@ -11,19 +16,19 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Settings")
+            Text(KiplessStrings.settingsTitle)
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
 
-            Text("Kipless")
+            Text(KiplessStrings.appName)
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.secondary)
                 .padding(.top, 4)
 
-            settingsSection("General") {
+            settingsSection(String(localized: KiplessStrings.settingsGeneralSection)) {
                 generalSection
             }
 
-            settingsSection("About") {
+            settingsSection(String(localized: KiplessStrings.settingsAboutSection)) {
                 aboutSection
             }
         }
@@ -37,7 +42,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Launch at Login")
+                    Text(KiplessStrings.settingsLaunchAtLoginTitle)
                         .font(.system(size: 13, weight: .medium))
 
                     Text(SettingsCopy.launchAtLoginDescription)
@@ -48,7 +53,7 @@ struct SettingsView: View {
                 Spacer(minLength: 12)
 
                 Toggle(
-                    "Launch at Login",
+                    String(localized: KiplessStrings.settingsLaunchAtLoginTitle),
                     isOn: Binding(
                         get: { launchAtLogin.isEnabled },
                         set: { launchAtLogin.setEnabled($0) }
@@ -60,7 +65,7 @@ struct SettingsView: View {
 
             if launchAtLogin.requiresApproval {
                 inlineMessage(
-                    "Allow Kipless in System Settings › General › Login Items to finish turning this on.",
+                    String(localized: KiplessStrings.settingsLaunchAtLoginApproval),
                     systemImage: "info.circle"
                 )
             }
@@ -86,7 +91,7 @@ struct SettingsView: View {
                 Text(SettingsCopy.aboutDescription)
                     .font(.system(size: 12, weight: .medium))
 
-                Text("No accounts, telemetry, or network connections.")
+                Text(KiplessStrings.settingsPrivacyDescription)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
             }
@@ -94,11 +99,11 @@ struct SettingsView: View {
             Spacer(minLength: 12)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("Version \(versionText)")
+                Text(String(localized: KiplessStrings.settingsVersion(versionText)))
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
 
-                Text("MPL-2.0")
+                Text(KiplessStrings.settingsLicense)
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
             }

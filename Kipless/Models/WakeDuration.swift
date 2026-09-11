@@ -27,11 +27,11 @@ enum WakeDuration: String, CaseIterable, Identifiable, Sendable {
     /// Short label for the duration picker.
     var title: String {
         switch self {
-        case .minutes15: "15 minutes"
-        case .minutes30: "30 minutes"
-        case .hour1: "1 hour"
-        case .hour2: "2 hours"
-        case .indefinite: "Indefinitely"
+        case .minutes15: String(localized: KiplessStrings.durationMinutes15)
+        case .minutes30: String(localized: KiplessStrings.durationMinutes30)
+        case .hour1: String(localized: KiplessStrings.durationHour1)
+        case .hour2: String(localized: KiplessStrings.durationHour2)
+        case .indefinite: String(localized: KiplessStrings.durationIndefinite)
         }
     }
 }

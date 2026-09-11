@@ -7,7 +7,9 @@ enum KiplessTheme {
 }
 
 enum KiplessSettingsOpener {
-    static let windowTitle = "Kipless Settings"
+    static var windowTitle: String {
+        String(localized: KiplessStrings.settingsWindowTitle)
+    }
 
     @MainActor
     static func open() {
@@ -73,13 +75,13 @@ struct KiplessPopoverView: View {
                 optionsPanel
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(height: 180)
+            .frame(height: KiplessLayout.sessionPanelHeight)
 
             Divider()
             footer
-                .frame(height: 36)
+                .frame(height: KiplessLayout.footerHeight)
         }
-        .frame(width: 360)
+        .frame(width: KiplessLayout.popoverWidth)
     }
 
     // MARK: - Quiet Ring
@@ -110,17 +112,31 @@ struct KiplessPopoverView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
-                .accessibilityLabel(manager.isActive ? "Stop session" : "Start session")
-                .help(manager.isActive ? "Stop session" : "Start session")
+                .accessibilityLabel(
+                    manager.isActive
+                        ? String(localized: KiplessStrings.sessionStop)
+                        : String(localized: KiplessStrings.sessionStart)
+                )
+                .help(
+                    manager.isActive
+                        ? String(localized: KiplessStrings.sessionStop)
+                        : String(localized: KiplessStrings.sessionStart)
+                )
             }
         }
-        .frame(width: 138, height: 138)
+        .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Session time remaining")
+        .accessibilityLabel(String(localized: KiplessStrings.sessionTimeRemaining))
     }
 
     private var optionsPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
+            Text(KiplessStrings.modeExplanation)
+                .font(.system(size: 8.5))
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.bottom, KiplessLayout.explanationBottomPadding)
+
             VStack(alignment: .leading, spacing: 0) {
                 ForEach(Array(WakeMode.allCases.enumerated()), id: \.element.id) { index, candidate in
                     if index > 0 {
@@ -132,16 +148,18 @@ struct KiplessPopoverView: View {
                 }
             }
 
-            Spacer(minLength: 8)
+            Spacer(minLength: KiplessLayout.minimumContentGap)
 
-            HStack(spacing: 8) {
-                Text("Duration")
+            HStack(spacing: 5) {
+                Text(KiplessStrings.sessionDurationTitle)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                    .fixedSize(horizontal: true, vertical: false)
 
                 Spacer(minLength: 0)
 
-                Picker("Duration", selection: $duration) {
+                Picker(String(localized: KiplessStrings.sessionDurationTitle), selection: $duration) {
                     ForEach(WakeDuration.allCases) { duration in
                         Text(duration.title).tag(duration)
                     }
@@ -149,11 +167,14 @@ struct KiplessPopoverView: View {
                 .pickerStyle(.menu)
                 .labelsHidden()
                 .controlSize(.small)
+                .frame(width: KiplessLayout.durationPickerWidth, alignment: .leading)
+                .layoutPriority(1)
                 .disabled(manager.isActive)
             }
+            .frame(height: KiplessLayout.durationRowHeight)
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 16)
+        .padding(.horizontal, KiplessLayout.optionsHorizontalPadding)
+        .padding(.vertical, KiplessLayout.optionsVerticalPadding)
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
@@ -175,7 +196,7 @@ struct KiplessPopoverView: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            .padding(.vertical, 6)
+            .padding(.vertical, KiplessLayout.modeOptionVerticalPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
         }
@@ -261,7 +282,7 @@ struct KiplessPopoverView: View {
                     .padding(3)
                     .background(Color.secondary.opacity(0.12), in: Circle())
 
-                Text("Kipless")
+                Text(KiplessStrings.appName)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
@@ -271,12 +292,12 @@ struct KiplessPopoverView: View {
             Button {
                 KiplessSettingsOpener.open()
             } label: {
-                Text("Settings")
+                Text(KiplessStrings.settingsAction)
                     .font(.system(size: 11))
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .help("Settings")
+            .help(String(localized: KiplessStrings.settingsAction))
 
             Button {
                 NSApplication.shared.terminate(nil)
@@ -287,8 +308,8 @@ struct KiplessPopoverView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .accessibilityLabel("Quit Kipless")
-            .help("Quit Kipless and release the wake session")
+            .accessibilityLabel(String(localized: KiplessStrings.quitAction))
+            .help(String(localized: KiplessStrings.quitHelp))
         }
         .padding(.horizontal, 18)
     }
