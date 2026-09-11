@@ -9,10 +9,11 @@ you ask it to.
 
 ## Features
 
-- **Keep your Mac awake** — blocks idle *system* sleep. Your display still turns
-  off on its own schedule, so a long download can finish with the screen dark.
-- **Keep your display awake** — blocks idle *display* sleep, keeping the screen
-  on for dashboards, reference material, reading and presentations.
+- **Keep Mac Awake** — blocks idle *system* sleep. Your display still turns off
+  on its own schedule, so a long download can finish with the screen dark.
+- **Keep Mac + Display Awake** — blocks idle *display* sleep. Keeping the screen
+  on necessarily keeps the Mac awake too, making this a single, higher-scope
+  mode for dashboards, reference material, reading and presentations.
 - **Timed wake sessions** — 15 minutes, 30 minutes, 1 hour, 2 hours, or
   indefinitely.
 - **Lightweight menu bar interface** — no Dock icon, no main window, no

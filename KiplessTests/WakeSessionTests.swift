@@ -1,3 +1,4 @@
+import AppKit
 import XCTest
 @testable import Kipless
 
@@ -30,5 +31,40 @@ final class WakeSessionTests: XCTestCase {
             [.minutes15, .minutes30, .hour1, .hour2, .indefinite]
         )
         XCTAssertEqual(WakeMode.allCases, [.system, .display])
+    }
+
+    func testWakeModesUseHierarchicalUserFacingLabels() {
+        XCTAssertEqual(WakeMode.system.title, "Keep Mac Awake")
+        XCTAssertEqual(WakeMode.system.subtitle, "Display may sleep normally.")
+        XCTAssertEqual(WakeMode.display.title, "Keep Mac + Display Awake")
+        XCTAssertEqual(WakeMode.display.subtitle, "Screen stays on; Mac wake included.")
+    }
+
+    func testSettingsCopyKeepsThePanelConcise() {
+        XCTAssertEqual(SettingsCopy.launchAtLoginDescription, "Start Kipless automatically when you sign in.")
+        XCTAssertEqual(SettingsCopy.aboutDescription, "Lightweight and private.")
+    }
+
+    func testKiplessAccentUsesTheCurrentControlAccent() {
+        XCTAssertEqual(KiplessTheme.accentNSColor, NSColor.controlAccentColor)
+    }
+
+    func testAppDoesNotOverrideTheSystemAccent() {
+        let appBundle = Bundle(identifier: "com.kaoru.kipless")
+
+        XCTAssertNotNil(appBundle)
+        XCTAssertNil(appBundle?.object(forInfoDictionaryKey: "NSAccentColorName"))
+    }
+
+    func testSettingsOpenerUsesTheDedicatedSettingsWindow() {
+        XCTAssertEqual(KiplessSettingsOpener.windowTitle, "Kipless Settings")
+    }
+
+    @MainActor
+    func testSettingsOpenerShowsTheDedicatedSettingsWindow() {
+        KiplessSettingsOpener.open()
+        defer { NSApp.windows.first(where: { $0.title == KiplessSettingsOpener.windowTitle })?.close() }
+
+        XCTAssertTrue(NSApp.windows.contains(where: { $0.title == KiplessSettingsOpener.windowTitle && $0.isVisible }))
     }
 }

@@ -12,19 +12,24 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
-    /// Short label for the mode picker.
+    /// User-facing name for the mode picker.
     var title: String {
         switch self {
-        case .system: "System"
-        case .display: "Display"
+        case .system: "Keep Mac Awake"
+        case .display: "Keep Mac + Display Awake"
         }
     }
 
-    /// Phrase describing the running session, e.g. "System awake".
-    var activeDescription: String {
+    /// Explains the scope of the mode without exposing assertion details.
+    var subtitle: String {
         switch self {
-        case .system: "System awake"
-        case .display: "Display awake"
+        case .system: "Display may sleep normally."
+        case .display: "Screen stays on; Mac wake included."
         }
+    }
+
+    /// Phrase describing the running session.
+    var activeDescription: String {
+        title
     }
 }

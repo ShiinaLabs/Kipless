@@ -69,7 +69,7 @@ Kipless v1.0 只解决一个核心问题：
 
 # 4. v1.0 核心功能
 
-## 4.1 Keep System Awake
+## 4.1 Keep Mac Awake
 
 阻止 Mac 因用户空闲而自动进入系统睡眠。
 
@@ -100,9 +100,11 @@ PreventUserIdleSystemSleep
 
 ---
 
-## 4.2 Keep Display Awake
+## 4.2 Keep Mac + Display Awake
 
-阻止显示器因用户空闲而自动关闭。
+阻止显示器因用户空闲而自动关闭，同时保持 Mac 唤醒。
+
+这是一个包含关系明确的独立运行模式，而不是与 Keep Mac Awake 并列启用的第二个开关。
 
 由于 Display Idle Sleep 被阻止，该状态下系统也需要保持唤醒。
 
