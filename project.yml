@@ -54,6 +54,7 @@ targets:
         LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
         # Menu bar only: no Dock icon, no app switcher entry.
         LSUIElement: true
+        LSApplicationCategoryType: public.app-category.utilities
         NSHumanReadableCopyright: Copyright © 2026 Kaoru. Licensed under MPL-2.0.
 
   KiplessPowerTestHelper:

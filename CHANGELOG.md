@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Keep System Awake and Keep Display Awake modes, backed by IOKit power
+- Two sleep-control modes: **Let the screen turn off** keeps the Mac working
+  while the display follows its normal schedule, and **Keep the screen on**
+  keeps both the Mac and display awake; both are backed by IOKit power
   assertions.
 - Timed wake sessions of 15 minutes, 30 minutes, 1 hour and 2 hours, plus an
   indefinite session.
