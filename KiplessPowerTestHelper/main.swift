@@ -21,37 +21,20 @@ private func emit(_ message: String) {
     FileHandle.standardOutput.write(data)
 }
 
-private func assertionType(for mode: String) -> CFString? {
-    switch mode {
-    case "system":
-        kIOPMAssertionTypePreventUserIdleSystemSleep as CFString
-    case "display":
-        kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString
-    default:
-        nil
-    }
-}
-
 private func acquire(mode: String) throws -> IOPMAssertionID {
-    guard let type = assertionType(for: mode) else { throw HelperFailure.usage }
-
-    var id: IOPMAssertionID = 0
-    let reason = "Kipless is keeping your Mac awake." as CFString
-    let result = IOPMAssertionCreateWithName(
-        type,
-        IOPMAssertionLevel(kIOPMAssertionLevelOn),
-        reason,
-        &id
-    )
-
-    guard result == kIOReturnSuccess else {
-        throw HelperFailure.assertion(mode: mode, code: result)
+    guard let assertionMode = PowerAssertionMode(rawValue: mode) else {
+        throw HelperFailure.usage
     }
-    return id
+
+    do {
+        return try PowerAssertionDriver.acquire(for: assertionMode)
+    } catch let error as PowerAssertionDriverError {
+        throw HelperFailure.assertion(mode: mode, code: error.code)
+    }
 }
 
 private func release(_ id: IOPMAssertionID, mode: String) {
-    IOPMAssertionRelease(id)
+    PowerAssertionDriver.release(id)
     emit("KIPLESS_ASSERTION_RELEASED \(mode)")
 }
 

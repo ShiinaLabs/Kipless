@@ -95,7 +95,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Could not keep the %@ awake (IOKit error %ld)."
+            "value" : "Could not keep your Mac awake (IOKit error %ld)."
           }
         }
       }

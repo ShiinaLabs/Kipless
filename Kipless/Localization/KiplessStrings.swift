@@ -192,10 +192,10 @@ enum KiplessStrings {
         defaultValue: "Quit Kipless and release the wake session",
         comment: "Help text for the quit button."
     )
-    static func assertionCreationError(mode: String, code: IOReturn) -> LocalizedStringResource {
+    static func assertionCreationError(code: IOReturn) -> LocalizedStringResource {
         LocalizedStringResource(
             "error.assertionCreation",
-            defaultValue: "Could not keep the \(mode) awake (IOKit error \(code)).",
+            defaultValue: "Could not keep your Mac awake (IOKit error \(code)).",
             comment: "Shown when macOS rejects a power assertion."
         )
     }

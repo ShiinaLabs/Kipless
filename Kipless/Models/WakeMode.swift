@@ -12,6 +12,13 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
+    var powerAssertionMode: PowerAssertionMode {
+        switch self {
+        case .system: .system
+        case .display: .display
+        }
+    }
+
     /// User-facing name for the mode picker.
     var title: String {
         switch self {

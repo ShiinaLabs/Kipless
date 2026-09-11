@@ -27,6 +27,18 @@ jobs:
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Build power test helper
+        run: |
+          xcodebuild build \
+            -project Kipless.xcodeproj \
+            -scheme KiplessPowerTestHelper \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Validate shell scripts
+        run: bash -n scripts/*.sh
+
       - name: Release build
         run: |
           xcodebuild build \

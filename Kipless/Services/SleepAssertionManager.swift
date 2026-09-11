@@ -16,8 +16,8 @@ enum SleepAssertionError: LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case let .creationFailed(mode, code):
-            String(localized: KiplessStrings.assertionCreationError(mode: mode.title.lowercased(), code: code))
+        case let .creationFailed(_, code):
+            String(localized: KiplessStrings.assertionCreationError(code: code))
         }
     }
 }
@@ -33,27 +33,17 @@ enum SleepAssertionError: LocalizedError, Sendable {
 final class SleepAssertionManager: SleepAsserting {
     private var assertionID: IOPMAssertionID = 0
 
-    /// Shown in `pmset -g assertions`, so make it say what is going on.
-    private static let reason = "Kipless is keeping your Mac awake." as CFString
-
     /// Whether an assertion is currently held. Exposed for tests and diagnostics.
     var isHolding: Bool { assertionID != 0 }
 
     func acquire(for mode: WakeMode) throws {
         release()
 
-        var id: IOPMAssertionID = 0
-        let result = IOPMAssertionCreateWithName(
-            Self.assertionType(for: mode),
-            IOPMAssertionLevel(kIOPMAssertionLevelOn),
-            Self.reason,
-            &id
-        )
-
-        guard result == kIOReturnSuccess else {
-            throw SleepAssertionError.creationFailed(mode: mode, code: result)
+        do {
+            assertionID = try PowerAssertionDriver.acquire(for: mode.powerAssertionMode)
+        } catch let error as PowerAssertionDriverError {
+            throw SleepAssertionError.creationFailed(mode: mode, code: error.code)
         }
-        assertionID = id
     }
 
     func release() {
@@ -62,13 +52,6 @@ final class SleepAssertionManager: SleepAsserting {
         // Clear the stored ID first: if the release call were ever to trap or
         // re-enter, the assertion must not look like it is still held.
         assertionID = 0
-        IOPMAssertionRelease(id)
-    }
-
-    private static func assertionType(for mode: WakeMode) -> CFString {
-        switch mode {
-        case .system: kIOPMAssertionTypePreventUserIdleSystemSleep as CFString
-        case .display: kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString
-        }
+        PowerAssertionDriver.release(id)
     }
 }

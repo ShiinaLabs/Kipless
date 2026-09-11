@@ -11,13 +11,16 @@
 		0F48DF28F58C135D67D7E974 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F206E53156A19E62DA07183 /* main.swift */; };
 		115C1ABADDA3B3FDDF920A87 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869A7F837FEDD728447129E /* SettingsView.swift */; };
 		128852211B482C6AFD2A7170 /* LocalizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8048AFEC921890C16AAB4908 /* LocalizationTests.swift */; };
+		197E73240273F7A3EBB29881 /* PowerAssertionDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */; };
 		225304ABF0313A1DAA10C188 /* KiplessPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */; };
 		32B4D44B888060C8F412F4CF /* WakeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB2B5B31CE5A02039599530 /* WakeSession.swift */; };
 		32BDB9E10D5157A503322CA0 /* WakeSessionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */; };
 		3477C8D755FD3069C1CBC8A9 /* KiplessLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D813C0DC12A3E62CAA6B887A /* KiplessLayoutTests.swift */; };
 		4C94CFB26CA2F47916A48D8C /* WakeSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */; };
 		64AE4051190C6640A5004229 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC0ECE9FDA8648A1DBACB8E /* AppDelegate.swift */; };
+		69164C136FFAB14D6EB0D021 /* PowerAssertionDriverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026D23B4D4F9606AC10C0727 /* PowerAssertionDriverTests.swift */; };
 		70B9682C1046EAEE9BBEDFB3 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */; };
+		72C7DA2F1DF327D8E7143A35 /* PowerAssertionDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */; };
 		7C154B7AFAFD17688A10BDAF /* KiplessStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB0C4BBD1296A31FEBBC387 /* KiplessStrings.swift */; };
 		8B8DF0155C75253563F99B7D /* KiplessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117E659251ADBB7EA6A2DE8C /* KiplessApp.swift */; };
 		91B3852DF883100E687003EB /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BFB4B62AE7D63EA0B001F58C /* Localizable.xcstrings */; };
@@ -43,6 +46,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		026D23B4D4F9606AC10C0727 /* PowerAssertionDriverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAssertionDriverTests.swift; sourceTree = "<group>"; };
 		0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCountdownTests.swift; sourceTree = "<group>"; };
 		06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepAssertionManager.swift; sourceTree = "<group>"; };
 		0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeSessionManagerTests.swift; sourceTree = "<group>"; };
@@ -68,6 +72,7 @@
 		DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
 		DEB0C4BBD1296A31FEBBC387 /* KiplessStrings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KiplessStrings.swift; sourceTree = "<group>"; };
 		EFA91F4653F2590331B6EF11 /* WakeDuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeDuration.swift; sourceTree = "<group>"; };
+		F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAssertionDriver.swift; sourceTree = "<group>"; };
 		FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */,
+				F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */,
 				06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */,
 				2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */,
 			);
@@ -130,6 +136,7 @@
 				D813C0DC12A3E62CAA6B887A /* KiplessLayoutTests.swift */,
 				8048AFEC921890C16AAB4908 /* LocalizationTests.swift */,
 				6B33EF767B5A56EFDBCE3C42 /* MockSleepAssertionManager.swift */,
+				026D23B4D4F9606AC10C0727 /* PowerAssertionDriverTests.swift */,
 				0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */,
 				0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */,
 				B56A83672794BA412E1DEBEF /* WakeSessionTests.swift */,
@@ -297,6 +304,7 @@
 				3477C8D755FD3069C1CBC8A9 /* KiplessLayoutTests.swift in Sources */,
 				128852211B482C6AFD2A7170 /* LocalizationTests.swift in Sources */,
 				DA675F6E7F0B2B0666C929C2 /* MockSleepAssertionManager.swift in Sources */,
+				69164C136FFAB14D6EB0D021 /* PowerAssertionDriverTests.swift in Sources */,
 				F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */,
 				32BDB9E10D5157A503322CA0 /* WakeSessionManagerTests.swift in Sources */,
 				C8C8766DED80325841E14EDB /* WakeSessionTests.swift in Sources */,
@@ -314,6 +322,7 @@
 				7C154B7AFAFD17688A10BDAF /* KiplessStrings.swift in Sources */,
 				70B9682C1046EAEE9BBEDFB3 /* LaunchAtLoginService.swift in Sources */,
 				928C0D159E9E414B36B112B9 /* MenuBarLabel.swift in Sources */,
+				72C7DA2F1DF327D8E7143A35 /* PowerAssertionDriver.swift in Sources */,
 				03DF07CAD92C32DAB918E1C7 /* SessionCountdown.swift in Sources */,
 				115C1ABADDA3B3FDDF920A87 /* SettingsView.swift in Sources */,
 				EFB5DCAFF7FEB8606C779ED0 /* SleepAssertionManager.swift in Sources */,
@@ -328,6 +337,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				197E73240273F7A3EBB29881 /* PowerAssertionDriver.swift in Sources */,
 				0F48DF28F58C135D67D7E974 /* main.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

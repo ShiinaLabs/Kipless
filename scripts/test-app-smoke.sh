@@ -8,6 +8,7 @@ source "$SCRIPT_DIR/test-common.sh"
 APP_PATH="${KIPLESS_APP_PATH:-$DERIVED_DATA_PATH/Build/Products/Release/Kipless.app}"
 APP_EXECUTABLE="$APP_PATH/Contents/MacOS/Kipless"
 APP_PID=""
+TEST_SUCCEEDED=0
 
 find_app_pid() {
     pgrep -f -- "$APP_EXECUTABLE$" | head -n 1 || true
@@ -27,21 +28,39 @@ wait_for_app_exit() {
 }
 
 cleanup() {
-    local cleanup_result=0
+    local status=$?
 
-    if [[ -n "$APP_PID" ]] && kill -0 "$APP_PID" 2>/dev/null; then
+    if (( TEST_SUCCEEDED == 0 )) && [[ -n "$APP_PID" ]]; then
+        if kill -0 "$APP_PID" 2>/dev/null; then
+            kill "$APP_PID" 2>/dev/null || true
+            wait_for_app_exit || {
+                kill -KILL "$APP_PID" 2>/dev/null || true
+                wait "$APP_PID" 2>/dev/null || true
+            }
+        fi
+    fi
+
+    return "$status"
+}
+
+trap cleanup EXIT
+
+terminate_app() {
+    [[ -n "$APP_PID" ]] || return 0
+
+    if kill -0 "$APP_PID" 2>/dev/null; then
         kill "$APP_PID" 2>/dev/null || true
         wait_for_app_exit || {
             kill -KILL "$APP_PID" 2>/dev/null || true
             wait "$APP_PID" 2>/dev/null || true
+            wait_for_app_exit
         }
+    else
+        wait_for_app_exit
     fi
 
-    wait_for_no_kipless_assertion || cleanup_result=1
-    return "$cleanup_result"
+    APP_PID=""
 }
-
-trap cleanup EXIT
 
 printf 'Kipless app smoke tests\n'
 printf '  release app build\n'
@@ -107,4 +126,8 @@ sleep 2
 kill -0 "$APP_PID"
 assert_no_kipless_assertion
 
+printf '  terminate and release state\n'
+terminate_app
+assert_no_kipless_assertion
+TEST_SUCCEEDED=1
 printf 'App smoke tests passed.\n'
