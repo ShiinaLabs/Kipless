@@ -1,0 +1,499 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		03DF07CAD92C32DAB918E1C7 /* SessionCountdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B50714E6366692FE779346 /* SessionCountdown.swift */; };
+		115C1ABADDA3B3FDDF920A87 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869A7F837FEDD728447129E /* SettingsView.swift */; };
+		225304ABF0313A1DAA10C188 /* KiplessPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */; };
+		32B4D44B888060C8F412F4CF /* WakeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB2B5B31CE5A02039599530 /* WakeSession.swift */; };
+		32BDB9E10D5157A503322CA0 /* WakeSessionManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */; };
+		4C94CFB26CA2F47916A48D8C /* WakeSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */; };
+		64AE4051190C6640A5004229 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC0ECE9FDA8648A1DBACB8E /* AppDelegate.swift */; };
+		70B9682C1046EAEE9BBEDFB3 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */; };
+		8B8DF0155C75253563F99B7D /* KiplessApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117E659251ADBB7EA6A2DE8C /* KiplessApp.swift */; };
+		928C0D159E9E414B36B112B9 /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */; };
+		BD42852EC0E971CEE47306F2 /* WakeDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA91F4653F2590331B6EF11 /* WakeDuration.swift */; };
+		C8C8766DED80325841E14EDB /* WakeSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B56A83672794BA412E1DEBEF /* WakeSessionTests.swift */; };
+		C93DDAAB08C6D414327C92FA /* WakeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C87C413DC4EA7DF709DA43 /* WakeMode.swift */; };
+		CB629B469FCE42E9BD7A14A1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B9721F7156F4D89D687B20A /* Assets.xcassets */; };
+		DA675F6E7F0B2B0666C929C2 /* MockSleepAssertionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B33EF767B5A56EFDBCE3C42 /* MockSleepAssertionManager.swift */; };
+		EFB5DCAFF7FEB8606C779ED0 /* SleepAssertionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */; };
+		F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		75E8296EF75D88E54B78FFE8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5760EF94B1009118E07012E9 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C51FEC532DB9255DDDEB5EB1;
+			remoteInfo = Kipless;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCountdownTests.swift; sourceTree = "<group>"; };
+		06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepAssertionManager.swift; sourceTree = "<group>"; };
+		0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeSessionManagerTests.swift; sourceTree = "<group>"; };
+		117E659251ADBB7EA6A2DE8C /* KiplessApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KiplessApp.swift; sourceTree = "<group>"; };
+		1869A7F837FEDD728447129E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1F88C754A0685BFCD92B8D63 /* KiplessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KiplessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CB2B5B31CE5A02039599530 /* WakeSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeSession.swift; sourceTree = "<group>"; };
+		2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeSessionManager.swift; sourceTree = "<group>"; };
+		2DC0ECE9FDA8648A1DBACB8E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		45B50714E6366692FE779346 /* SessionCountdown.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionCountdown.swift; sourceTree = "<group>"; };
+		59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KiplessPopoverView.swift; sourceTree = "<group>"; };
+		6B33EF767B5A56EFDBCE3C42 /* MockSleepAssertionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSleepAssertionManager.swift; sourceTree = "<group>"; };
+		8B9721F7156F4D89D687B20A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B4C87C413DC4EA7DF709DA43 /* WakeMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeMode.swift; sourceTree = "<group>"; };
+		B56A83672794BA412E1DEBEF /* WakeSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeSessionTests.swift; sourceTree = "<group>"; };
+		D8AB35931781E0785B5C47F5 /* Kipless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Kipless.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLoginService.swift; sourceTree = "<group>"; };
+		EFA91F4653F2590331B6EF11 /* WakeDuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WakeDuration.swift; sourceTree = "<group>"; };
+		FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		030A99AF8BD3B5679090E34C /* Kipless */ = {
+			isa = PBXGroup;
+			children = (
+				DA3F1F6FA0833C01D6768EDA /* Models */,
+				55EAE9B2170A9D879C4427DE /* Services */,
+				4BFB9DA1ED5909D3D569AD06 /* Views */,
+				2DC0ECE9FDA8648A1DBACB8E /* AppDelegate.swift */,
+				8B9721F7156F4D89D687B20A /* Assets.xcassets */,
+				117E659251ADBB7EA6A2DE8C /* KiplessApp.swift */,
+			);
+			path = Kipless;
+			sourceTree = "<group>";
+		};
+		4BFB9DA1ED5909D3D569AD06 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */,
+				FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */,
+				1869A7F837FEDD728447129E /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		55EAE9B2170A9D879C4427DE /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */,
+				06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */,
+				2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		952BA4ACF3D09F3392981F38 /* KiplessTests */ = {
+			isa = PBXGroup;
+			children = (
+				6B33EF767B5A56EFDBCE3C42 /* MockSleepAssertionManager.swift */,
+				0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */,
+				0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */,
+				B56A83672794BA412E1DEBEF /* WakeSessionTests.swift */,
+			);
+			path = KiplessTests;
+			sourceTree = "<group>";
+		};
+		AEF87F82C7392EB53941AE2D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D8AB35931781E0785B5C47F5 /* Kipless.app */,
+				1F88C754A0685BFCD92B8D63 /* KiplessTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		DA3F1F6FA0833C01D6768EDA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				45B50714E6366692FE779346 /* SessionCountdown.swift */,
+				EFA91F4653F2590331B6EF11 /* WakeDuration.swift */,
+				B4C87C413DC4EA7DF709DA43 /* WakeMode.swift */,
+				2CB2B5B31CE5A02039599530 /* WakeSession.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		E02B9E898C74C6EBA43F0B87 = {
+			isa = PBXGroup;
+			children = (
+				030A99AF8BD3B5679090E34C /* Kipless */,
+				952BA4ACF3D09F3392981F38 /* KiplessTests */,
+				AEF87F82C7392EB53941AE2D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C51FEC532DB9255DDDEB5EB1 /* Kipless */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4A57D39091474A1CF92B697F /* Build configuration list for PBXNativeTarget "Kipless" */;
+			buildPhases = (
+				C815BBC051F68E4BF1147D0D /* Sources */,
+				77F0C433EF1ED97393266A87 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Kipless;
+			packageProductDependencies = (
+			);
+			productName = Kipless;
+			productReference = D8AB35931781E0785B5C47F5 /* Kipless.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C9CC1C04687475B150B52F46 /* KiplessTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0AC39284B3EA96CBBFCC2F84 /* Build configuration list for PBXNativeTarget "KiplessTests" */;
+			buildPhases = (
+				7EAECAC34156F4B71D21C0EF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				9FEF2BE4A7911627BA3B4EE5 /* PBXTargetDependency */,
+			);
+			name = KiplessTests;
+			packageProductDependencies = (
+			);
+			productName = KiplessTests;
+			productReference = 1F88C754A0685BFCD92B8D63 /* KiplessTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5760EF94B1009118E07012E9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				ORGANIZATIONNAME = ShiinaLabs;
+				TargetAttributes = {
+					C51FEC532DB9255DDDEB5EB1 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+					C9CC1C04687475B150B52F46 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Manual;
+					};
+				};
+			};
+			buildConfigurationList = EF5BE019D113B8A5F4A9229B /* Build configuration list for PBXProject "Kipless" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = E02B9E898C74C6EBA43F0B87;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = AEF87F82C7392EB53941AE2D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C51FEC532DB9255DDDEB5EB1 /* Kipless */,
+				C9CC1C04687475B150B52F46 /* KiplessTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		77F0C433EF1ED97393266A87 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB629B469FCE42E9BD7A14A1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7EAECAC34156F4B71D21C0EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DA675F6E7F0B2B0666C929C2 /* MockSleepAssertionManager.swift in Sources */,
+				F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */,
+				32BDB9E10D5157A503322CA0 /* WakeSessionManagerTests.swift in Sources */,
+				C8C8766DED80325841E14EDB /* WakeSessionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C815BBC051F68E4BF1147D0D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64AE4051190C6640A5004229 /* AppDelegate.swift in Sources */,
+				8B8DF0155C75253563F99B7D /* KiplessApp.swift in Sources */,
+				225304ABF0313A1DAA10C188 /* KiplessPopoverView.swift in Sources */,
+				70B9682C1046EAEE9BBEDFB3 /* LaunchAtLoginService.swift in Sources */,
+				928C0D159E9E414B36B112B9 /* MenuBarLabel.swift in Sources */,
+				03DF07CAD92C32DAB918E1C7 /* SessionCountdown.swift in Sources */,
+				115C1ABADDA3B3FDDF920A87 /* SettingsView.swift in Sources */,
+				EFB5DCAFF7FEB8606C779ED0 /* SleepAssertionManager.swift in Sources */,
+				BD42852EC0E971CEE47306F2 /* WakeDuration.swift in Sources */,
+				C93DDAAB08C6D414327C92FA /* WakeMode.swift in Sources */,
+				32B4D44B888060C8F412F4CF /* WakeSession.swift in Sources */,
+				4C94CFB26CA2F47916A48D8C /* WakeSessionManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		9FEF2BE4A7911627BA3B4EE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C51FEC532DB9255DDDEB5EB1 /* Kipless */;
+			targetProxy = 75E8296EF75D88E54B78FFE8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		02BAED590EB91C9E9A2FB8B8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kipless.app/Contents/MacOS/Kipless";
+			};
+			name = Release;
+		};
+		0780970973C12D4901DE1531 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless.tests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kipless.app/Contents/MacOS/Kipless";
+			};
+			name = Debug;
+		};
+		08EA5810EAD7D80AE315D952 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		45255D2D7357BCC1ADC38F9C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Kipless/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless;
+				PRODUCT_NAME = Kipless;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		92E8EC11AEC4D28AA00555DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		C38EAAA14ADE940962546DEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = Kipless/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless;
+				PRODUCT_NAME = Kipless;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0AC39284B3EA96CBBFCC2F84 /* Build configuration list for PBXNativeTarget "KiplessTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0780970973C12D4901DE1531 /* Debug */,
+				02BAED590EB91C9E9A2FB8B8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		4A57D39091474A1CF92B697F /* Build configuration list for PBXNativeTarget "Kipless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C38EAAA14ADE940962546DEA /* Debug */,
+				45255D2D7357BCC1ADC38F9C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EF5BE019D113B8A5F4A9229B /* Build configuration list for PBXProject "Kipless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				08EA5810EAD7D80AE315D952 /* Debug */,
+				92E8EC11AEC4D28AA00555DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5760EF94B1009118E07012E9 /* Project object */;
+}

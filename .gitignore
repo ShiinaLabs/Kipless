@@ -1,0 +1,25 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+.swiftpm/
+Package.resolved
+
+# XcodeGen output is committed, but its scratch dir is not
+# (Kipless.xcodeproj is checked in so contributors need no extra tooling)
+
+# macOS
+.DS_Store
+
+# Release artifacts
+*.dmg
+*.xcarchive
+export/
