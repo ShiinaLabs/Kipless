@@ -39,7 +39,7 @@ macOS 14 (Sonoma) or later.
 
 ## Installation
 
-Download `Kipless-x.y.z.dmg` from the [latest release][releases], open it, and
+Download `Kipless.dmg` from the [latest release][releases], open it, and
 drag Kipless to Applications. Builds are signed with a Developer ID and
 notarized by Apple, so they open without a Gatekeeper warning.
 

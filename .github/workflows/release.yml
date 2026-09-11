@@ -107,13 +107,12 @@ jobs:
       - name: Build DMG
         id: dmg
         run: |
-          VERSION="${{ steps.version.outputs.version }}"
           STAGE="$RUNNER_TEMP/dmg"
           mkdir -p "$STAGE"
           cp -R "$RUNNER_TEMP/export/Kipless.app" "$STAGE/"
           ln -s /Applications "$STAGE/Applications"
 
-          DMG="$RUNNER_TEMP/Kipless-$VERSION.dmg"
+          DMG="$RUNNER_TEMP/Kipless.dmg"
           hdiutil create -volname "Kipless" -srcfolder "$STAGE" \
             -ov -format UDZO "$DMG"
           codesign --force --timestamp --options runtime \
@@ -143,7 +142,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ steps.version.outputs.tag }}" \
-            "${{ steps.dmg.outputs.path }}" \
-            --title "Kipless ${{ steps.version.outputs.version }}" \
-            --generate-notes
+          TAG="${{ steps.version.outputs.tag }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${{ steps.dmg.outputs.path }}" --clobber
+          else
+            gh release create "$TAG" \
+              "${{ steps.dmg.outputs.path }}" \
+              --title "Kipless ${{ steps.version.outputs.version }}" \
+              --generate-notes
+          fi
