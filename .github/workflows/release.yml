@@ -116,6 +116,9 @@ jobs:
           DMG="$RUNNER_TEMP/Kipless-$VERSION.dmg"
           hdiutil create -volname "Kipless" -srcfolder "$STAGE" \
             -ov -format UDZO "$DMG"
+          codesign --force --timestamp --options runtime \
+            --sign "Developer ID Application" "$DMG"
+          codesign --verify --verbose=2 "$DMG"
           echo "path=$DMG" >> "$GITHUB_OUTPUT"
 
       - name: Notarize and staple
@@ -133,7 +136,7 @@ jobs:
       - name: Verify
         run: |
           xcrun stapler validate "${{ steps.dmg.outputs.path }}"
-          spctl --assess --type open --context context:primary-signature -v \
+          spctl --assess --type install -v \
             "${{ steps.dmg.outputs.path }}"
 
       - name: Publish
