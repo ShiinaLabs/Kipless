@@ -3,13 +3,12 @@ name: Release
 # Builds, signs, notarizes and publishes a DMG. Only runs on a version tag (or
 # by hand), so it never fires on ordinary pushes.
 #
-# Required repository secrets:
-#   DEVELOPER_ID_CERTIFICATE_P12          base64 of the Developer ID Application .p12
-#   DEVELOPER_ID_CERTIFICATE_PASSWORD     password for that .p12
-#   KEYCHAIN_PASSWORD                     any password; used for a throwaway keychain
-#   APPLE_TEAM_ID                         Developer Team ID
-#   APPLE_ID                              Apple ID used for notarization
-#   APPLE_APP_PASSWORD                    app-specific password for that Apple ID
+# Required organization secrets / variables:
+#   APPLE_DEVELOPER_ID_CERTIFICATE_BASE64     base64 of the Developer ID Application .p12
+#   APPLE_DEVELOPER_ID_CERTIFICATE_PASSWORD   password for that .p12
+#   APPLE_TEAM_ID                             Developer Team ID (organization variable)
+#   APPLE_ID                                  Apple ID used for notarization
+#   APPLE_APP_SPECIFIC_PASSWORD               app-specific password for that Apple ID
 
 on:
   push:
@@ -27,7 +26,7 @@ jobs:
   release:
     runs-on: macos-latest
     env:
-      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -54,10 +53,10 @@ jobs:
 
       - name: Import Developer ID certificate
         env:
-          CERTIFICATE_P12: ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
-          CERTIFICATE_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          CERTIFICATE_P12: ${{ secrets.APPLE_DEVELOPER_ID_CERTIFICATE_BASE64 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_CERTIFICATE_PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD="$(uuidgen)"
           KEYCHAIN="$RUNNER_TEMP/kipless.keychain-db"
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           security set-keychain-settings -lut 21600 "$KEYCHAIN"
@@ -122,7 +121,7 @@ jobs:
       - name: Notarize and staple
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
         run: |
           xcrun notarytool submit "${{ steps.dmg.outputs.path }}" \
             --apple-id "$APPLE_ID" \
