@@ -23,10 +23,74 @@ enum SessionRingProgress {
 
     /// Whole seconds left, or `nil` when the Session has no deadline.
     static func remainingSeconds(session: WakeSession?, at date: Date) -> Int? {
-        guard let expiresAt = session?.expiresAt else { return nil }
-
-        return max(0, Int(expiresAt.timeIntervalSince(date).rounded(.up)))
+        session?.expiresAt.map { remainingSeconds(until: $0, at: date) }
     }
+
+    /// Whole seconds left until `expiresAt`, never negative.
+    static func remainingSeconds(until expiresAt: Date, at date: Date) -> Int {
+        max(0, Int(expiresAt.timeIntervalSince(date).rounded(.up)))
+    }
+}
+
+/// How the menu bar writes a countdown down.
+///
+/// The reading is deliberately coarse: minutes while there is time to spare,
+/// seconds only in the last one. A label that rewrote itself every second would
+/// wake the app 86,400 times a day to redraw the same pair of characters sixty
+/// times over, and a menu bar utility has better uses for the power.
+enum MenuBarCountdown {
+    /// Shown while a Session runs with no deadline to count down to. It is
+    /// static, so it costs nothing.
+    static let indefinite = "∞"
+
+    /// The countdown as the menu bar shows it.
+    static func text(remainingSeconds: Int) -> String {
+        let seconds = max(0, remainingSeconds)
+
+        if seconds >= 3600 {
+            let hours = seconds / 3600
+            let minutes = (seconds % 3600) / 60
+
+            return minutes == 0
+                ? "\(hours)h"
+                : "\(hours)h\(String(format: "%02d", minutes))"
+        }
+
+        if seconds >= 60 {
+            return "\(seconds / 60)m"
+        }
+
+        return "0:\(String(format: "%02d", seconds))"
+    }
+
+    /// How long until that text changes, or `nil` once it never will.
+    ///
+    /// The wait is parked on the change itself rather than on a fixed cadence,
+    /// so a label reading "29m" costs one wake-up a minute instead of sixty.
+    static func nextChangeDelay(remainingSeconds: Int) -> Duration? {
+        guard remainingSeconds > 0 else { return nil }
+
+        // A minute display only turns over on a minute boundary; the last
+        // minute turns over every second.
+        guard remainingSeconds > 60 else { return .seconds(1) }
+
+        return .seconds((remainingSeconds % 60) + 1)
+    }
+
+    /// A cadence for `SessionPresentationClock` that refreshes the label only
+    /// when the text above is due to change.
+    static let cadence: SessionPresentationClock.Cadence = {
+        nextChangeDelay(remainingSeconds: $0)
+    }
+}
+
+/// Whether the menu bar shows the running countdown.
+///
+/// Off by default. Showing it costs wake-ups the app does not otherwise need,
+/// so it stays the user's to turn on.
+enum MenuBarCountdownPreference {
+    static let storageKey = "menuBarShowsCountdown"
+    static let defaultValue = false
 }
 
 /// How fast the ring is allowed to travel.
@@ -72,67 +136,118 @@ enum SessionRingMotion {
 @MainActor
 @Observable
 final class SessionPresentationClock {
-    /// The time the popover is drawing for. It is never used to decide anything
-    /// about the Session — only to place the ring and the countdown text.
+    /// How long to wait before the next refresh, given how many seconds the
+    /// Session has left.
+    ///
+    /// The popover redraws its ring on a steady beat, so one second is right
+    /// there. A menu bar countdown has no reason to be redrawn while its text
+    /// is the same string, so it parks its wait on the moment that string
+    /// changes instead.
+    typealias Cadence = @Sendable (Int) -> Duration?
+
+    /// One refresh a second, for as long as there is a deadline.
+    nonisolated static let steady: Cadence = { _ in .seconds(1) }
+
+    /// The time being drawn for. It is never used to decide anything about the
+    /// Session — only to place the ring and the countdown text.
     private(set) var now: Date
 
-    /// Whether the popover's window is on screen. The one thing in the popover
-    /// that animates by itself asks for this too.
+    /// Whether whatever draws this is on screen.
     private(set) var isVisible: Bool
 
+    /// How long a cadence with nothing left to wait for parks for.
+    ///
+    /// It never has to elapse: the Session ending replaces the wait through
+    /// `update` long before it would.
+    private static let waitingForTheSessionToEnd: Duration = .seconds(3600)
+
     private let dateProvider: () -> Date
-    private let interval: Duration
+    private let cadence: Cadence
+    private var expiresAt: Date?
     private var ticker: Task<Void, Never>?
 
     init(
-        dateProvider: @escaping () -> Date = Date.init,
-        interval: Duration = .seconds(1)
+        cadence: @escaping Cadence = SessionPresentationClock.steady,
+        dateProvider: @escaping () -> Date = Date.init
     ) {
+        self.cadence = cadence
         self.dateProvider = dateProvider
-        self.interval = interval
-        // Assume the popover is on screen until the window says otherwise. A
-        // wrong `true` costs one second of refreshing; a wrong `false` would
-        // freeze the countdown in front of the user.
+        // Assume whatever draws this is on screen until told otherwise. A wrong
+        // `true` costs one second of refreshing; a wrong `false` would freeze a
+        // countdown in front of the user.
         self.isVisible = true
         self.now = dateProvider()
     }
 
-    /// Whether the clock is producing UI refreshes. Exposed for tests.
+    /// Whether the clock is producing refreshes. Exposed for tests.
     var isTicking: Bool { ticker != nil }
 
     /// Tells the clock what it has to draw, and derives from that whether there
-    /// is any point in running at all.
+    /// is any point in running at all: whatever draws it has to be on screen,
+    /// and there has to be a deadline to count down to.
     ///
-    /// The visibility write is guarded on a real change on purpose. This is
+    /// The stored inputs are only written when they actually change. This is
     /// called from the window probe, which reports during a SwiftUI update
     /// pass, and an `@Observable` setter notifies its observers whether or not
-    /// the value actually moved — writing unconditionally would invalidate the
-    /// view, re-run the probe, and loop forever.
-    func update(isVisible: Bool, isCountingDown: Bool) {
+    /// the value moved — writing unconditionally would invalidate the view,
+    /// re-run the probe, and loop forever.
+    func update(isVisible: Bool, expiresAt: Date?) {
+        guard self.isVisible != isVisible || self.expiresAt != expiresAt else { return }
+
         if self.isVisible != isVisible {
             self.isVisible = isVisible
         }
+        if self.expiresAt != expiresAt {
+            self.expiresAt = expiresAt
+        }
 
-        if isVisible, isCountingDown {
+        // A changed input means the wait already parked is timed for the wrong
+        // thing, so it is replaced rather than left to finish.
+        stop()
+
+        if isVisible, expiresAt != nil {
             start()
-        } else {
-            stop()
         }
     }
 
     private func start() {
         guard ticker == nil else { return }
 
-        let interval = self.interval
         now = dateProvider()
 
         ticker = Task { [weak self] in
             while !Task.isCancelled {
-                try? await Task.sleep(for: interval)
-                guard let self, !Task.isCancelled else { return }
+                guard let self else { return }
+
+                let delay = self.nextRefreshDelay()
+                try? await Task.sleep(for: delay, tolerance: Self.tolerance(for: delay))
+                guard !Task.isCancelled else { return }
+
                 self.now = self.dateProvider()
             }
         }
+    }
+
+    /// How long until what is being drawn changes.
+    ///
+    /// A cadence that has nothing left to wait for — a countdown that has
+    /// reached zero has no next change to name — parks until the Session ends
+    /// rather than ending the loop itself, so that the only thing that stops
+    /// this clock is `update`. A loop that could end on its own would leave a
+    /// dead task behind the `ticker` it is still stored in, and the next
+    /// deadline would then start a second one.
+    private func nextRefreshDelay() -> Duration {
+        guard isVisible, let expiresAt else { return Self.waitingForTheSessionToEnd }
+
+        return cadence(SessionRingProgress.remainingSeconds(until: expiresAt, at: now))
+            ?? Self.waitingForTheSessionToEnd
+    }
+
+    /// A little leeway lets the kernel coalesce this wake-up with others, which
+    /// is what Apple's energy guidance asks for. It stays small enough that no
+    /// countdown can visibly drift.
+    private static func tolerance(for delay: Duration) -> Duration {
+        delay >= .seconds(10) ? .seconds(1) : .milliseconds(50)
     }
 
     private func stop() {

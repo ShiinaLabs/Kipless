@@ -10,6 +10,10 @@ enum SettingsCopy {
         String(localized: LocalizedStringResource.settingsAboutDescription)
     }
 
+    static var menuBarCountdownDescription: String {
+        String(localized: LocalizedStringResource.settingsMenuBarCountdownDescription)
+    }
+
     static var closedLidApprovalTitle: String {
         String(localized: LocalizedStringResource.permissionClosedLidApprovalTitle)
     }
@@ -96,6 +100,8 @@ struct SettingsView: View {
 /// height can be measured for window sizing.
 struct SettingsContentView: View {
     @State private var launchAtLogin = LaunchAtLoginService()
+    @AppStorage(MenuBarCountdownPreference.storageKey)
+    private var showsMenuBarCountdown = MenuBarCountdownPreference.defaultValue
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -129,43 +135,73 @@ struct SettingsContentView: View {
 
     private var generalSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack(alignment: .top, spacing: 16) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(LocalizedStringResource.settingsLaunchAtLoginTitle)
-                        .font(.system(size: 13, weight: .medium))
+            // The launch-at-login row keeps its own messages underneath it, so
+            // the countdown row below reads as a separate setting rather than
+            // as something the messages belong to.
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(LocalizedStringResource.settingsLaunchAtLoginTitle)
+                            .font(.system(size: 13, weight: .medium))
 
-                    Text(SettingsCopy.launchAtLoginDescription)
-                        .font(.system(size: 11))
-                        .foregroundStyle(.secondary)
+                        Text(SettingsCopy.launchAtLoginDescription)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                    }
+
+                    Spacer(minLength: 12)
+
+                    Toggle(
+                        String(localized: LocalizedStringResource.settingsLaunchAtLoginTitle),
+                        isOn: Binding(
+                            get: { launchAtLogin.isEnabled },
+                            set: { launchAtLogin.setEnabled($0) }
+                        )
+                    )
+                    .labelsHidden()
+                    .controlSize(.small)
                 }
 
-                Spacer(minLength: 12)
-
-                Toggle(
-                    String(localized: LocalizedStringResource.settingsLaunchAtLoginTitle),
-                    isOn: Binding(
-                        get: { launchAtLogin.isEnabled },
-                        set: { launchAtLogin.setEnabled($0) }
+                if launchAtLogin.requiresApproval {
+                    inlineMessage(
+                        String(localized: LocalizedStringResource.settingsLaunchAtLoginApproval),
+                        systemImage: "info.circle"
                     )
-                )
-                .labelsHidden()
-                .controlSize(.small)
+                }
+
+                if let message = launchAtLogin.errorMessage {
+                    inlineMessage(message, systemImage: "exclamationmark.triangle")
+                        .foregroundStyle(.red)
+                }
             }
 
-            if launchAtLogin.requiresApproval {
-                inlineMessage(
-                    String(localized: LocalizedStringResource.settingsLaunchAtLoginApproval),
-                    systemImage: "info.circle"
-                )
-            }
-
-            if let message = launchAtLogin.errorMessage {
-                inlineMessage(message, systemImage: "exclamationmark.triangle")
-                    .foregroundStyle(.red)
-            }
+            menuBarCountdownRow
         }
         .padding(14)
         .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var menuBarCountdownRow: some View {
+        HStack(alignment: .top, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(LocalizedStringResource.settingsMenuBarCountdownTitle)
+                    .font(.system(size: 13, weight: .medium))
+
+                Text(SettingsCopy.menuBarCountdownDescription)
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Spacer(minLength: 12)
+
+            Toggle(
+                String(localized: LocalizedStringResource.settingsMenuBarCountdownTitle),
+                isOn: $showsMenuBarCountdown
+            )
+            .labelsHidden()
+            .controlSize(.small)
+        }
     }
 
     private var wakeModesSection: some View {

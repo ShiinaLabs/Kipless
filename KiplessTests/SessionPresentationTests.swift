@@ -104,27 +104,27 @@ final class SessionRingMotionTests: XCTestCase {
 
 @MainActor
 final class SessionPresentationClockTests: XCTestCase {
-    func testTheClockRunsOnlyWhenThereIsSomethingToShow() {
+    func testTheClockRunsOnlyWhenThereIsSomethingToDraw() {
         let clock = makeClock()
 
-        clock.update(isVisible: true, isCountingDown: true)
+        clock.update(isVisible: true, expiresAt: deadline)
         XCTAssertTrue(clock.isTicking)
 
-        clock.update(isVisible: true, isCountingDown: false)
-        XCTAssertFalse(clock.isTicking, "an indefinite Session has nothing to count down")
+        clock.update(isVisible: true, expiresAt: nil)
+        XCTAssertFalse(clock.isTicking, "a Session with no deadline has nothing to count down")
 
-        clock.update(isVisible: false, isCountingDown: true)
+        clock.update(isVisible: false, expiresAt: deadline)
         XCTAssertFalse(clock.isTicking, "a closed popover must not refresh anything")
         XCTAssertFalse(clock.isVisible)
     }
 
-    func testTheTrailIsToldWhatTheWindowIsDoing() {
+    func testTheClockIsToldWhatIsOnScreen() {
         let clock = makeClock()
 
-        clock.update(isVisible: false, isCountingDown: false)
+        clock.update(isVisible: false, expiresAt: nil)
         XCTAssertFalse(clock.isVisible)
 
-        clock.update(isVisible: true, isCountingDown: true)
+        clock.update(isVisible: true, expiresAt: deadline)
         XCTAssertTrue(clock.isVisible)
     }
 
@@ -135,7 +135,7 @@ final class SessionPresentationClockTests: XCTestCase {
         // The popover may have been closed for an hour. The first frame after
         // it reopens has to be drawn for now, not for then.
         face.now = face.now.addingTimeInterval(3600)
-        clock.update(isVisible: true, isCountingDown: true)
+        clock.update(isVisible: true, expiresAt: face.now.addingTimeInterval(60))
 
         XCTAssertEqual(clock.now, face.now)
     }
@@ -143,41 +143,196 @@ final class SessionPresentationClockTests: XCTestCase {
     func testAStoppedClockDoesNotRefresh() {
         let face = ClockFace()
         let clock = makeClock(face: face)
-        clock.update(isVisible: false, isCountingDown: true)
+        clock.update(isVisible: false, expiresAt: deadline)
         let before = clock.now
 
         face.now = face.now.addingTimeInterval(3600)
-        clock.update(isVisible: false, isCountingDown: true)
+        clock.update(isVisible: false, expiresAt: deadline)
 
         XCTAssertEqual(clock.now, before)
+    }
+
+    func testTheClockAsksItsCadenceHowLongToWait() async {
+        let cadence = RecordingCadence(result: .seconds(3600))
+        let face = ClockFace()
+        let clock = SessionPresentationClock(
+            cadence: { cadence.record(remainingSeconds: $0) },
+            dateProvider: { face.now }
+        )
+
+        clock.update(isVisible: true, expiresAt: face.now.addingTimeInterval(1800))
+        await waitUntil("the clock asks its cadence") { !cadence.requestedSeconds.isEmpty }
+
+        XCTAssertEqual(cadence.requestedSeconds.first, 1800)
+
+        clock.update(isVisible: false, expiresAt: nil)
+    }
+
+    /// A countdown that has reached zero has no next change to wait for. That
+    /// must park the clock rather than spin it, and the Session ending is what
+    /// stops it.
+    func testACadenceWithNothingLeftToWaitForParksInsteadOfSpinning() async {
+        let cadence = RecordingCadence(result: nil)
+        let clock = SessionPresentationClock(
+            cadence: { cadence.record(remainingSeconds: $0) },
+            dateProvider: { Date(timeIntervalSince1970: 1_700_000_000) }
+        )
+
+        clock.update(isVisible: true, expiresAt: deadline)
+        await waitUntil("the clock asks its cadence") { !cadence.requestedSeconds.isEmpty }
+
+        await settle()
+        XCTAssertEqual(
+            cadence.requestedSeconds.count,
+            1,
+            "a cadence with nothing to wait for must not be asked over and over"
+        )
+        XCTAssertTrue(clock.isTicking, "the clock is parked, not gone")
+
+        clock.update(isVisible: true, expiresAt: nil)
+        XCTAssertFalse(clock.isTicking, "the Session ending is what stops it")
     }
 
     func testTheClockAdvancesWhileItRuns() async {
         let face = ClockFace()
         let clock = SessionPresentationClock(
-            dateProvider: { face.now },
-            interval: .milliseconds(1)
+            cadence: { _ in .milliseconds(1) },
+            dateProvider: { face.now }
         )
 
-        clock.update(isVisible: true, isCountingDown: true)
+        clock.update(isVisible: true, expiresAt: face.now.addingTimeInterval(3600))
         face.now = face.now.addingTimeInterval(5)
 
-        let deadline = Date().addingTimeInterval(2)
-        while clock.now != face.now, Date() < deadline {
-            try? await Task.sleep(for: .milliseconds(5))
-        }
+        await waitUntil("the clock picks up the new time") { clock.now == face.now }
 
-        XCTAssertEqual(clock.now, face.now)
+        clock.update(isVisible: false, expiresAt: nil)
+    }
 
-        clock.update(isVisible: false, isCountingDown: false)
+    private var deadline: Date {
+        Date(timeIntervalSince1970: 1_700_003_600)
     }
 
     private func makeClock(face: ClockFace = ClockFace()) -> SessionPresentationClock {
-        SessionPresentationClock(dateProvider: { face.now }, interval: .seconds(3600))
+        SessionPresentationClock(
+            cadence: { _ in .seconds(3600) },
+            dateProvider: { face.now }
+        )
+    }
+
+    private func waitUntil(
+        _ description: String,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ condition: () -> Bool
+    ) async {
+        let deadline = Date().addingTimeInterval(2)
+        while Date() < deadline {
+            if condition() { return }
+            await Task.yield()
+        }
+
+        XCTFail("Timed out waiting until \(description).", file: file, line: line)
+    }
+
+    /// Gives anything already scheduled a chance to run, so that "it did not
+    /// happen again" can be asserted rather than assumed.
+    private func settle() async {
+        for _ in 0..<50 {
+            await Task.yield()
+        }
     }
 
     /// A clock the cases move by hand.
     private final class ClockFace {
         var now = Date(timeIntervalSince1970: 1_700_000_000)
+    }
+
+    /// Records what the clock asked its cadence for. The clock calls this from
+    /// the main actor, so the lock only exists to satisfy the closure's
+    /// `@Sendable` signature.
+    private final class RecordingCadence: @unchecked Sendable {
+        private let lock = NSLock()
+        private let result: Duration?
+        private var recorded: [Int] = []
+
+        init(result: Duration?) {
+            self.result = result
+        }
+
+        var requestedSeconds: [Int] {
+            lock.withLock { recorded }
+        }
+
+        func record(remainingSeconds: Int) -> Duration? {
+            lock.withLock { recorded.append(remainingSeconds) }
+
+            return result
+        }
+    }
+}
+
+final class MenuBarCountdownTests: XCTestCase {
+    func testTheCountdownIsCoarseUntilTheLastMinute() {
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 7200), "2h")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 3660), "1h01")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 3600), "1h")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 1800), "30m")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 61), "1m")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 60), "1m")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 59), "0:59")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 5), "0:05")
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: 0), "0:00")
+    }
+
+    func testANegativeRemainderIsClampedRatherThanRendered() {
+        XCTAssertEqual(MenuBarCountdown.text(remainingSeconds: -5), "0:00")
+    }
+
+    func testTheNextChangeIsWaitedFor() {
+        // A minute display only turns over on a minute boundary, and the exact
+        // boundary is the one case where that is a second away.
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 1810), .seconds(11))
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 1800), .seconds(1))
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 3600), .seconds(1))
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 61), .seconds(2))
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 60), .seconds(1))
+        XCTAssertEqual(MenuBarCountdown.nextChangeDelay(remainingSeconds: 59), .seconds(1))
+    }
+
+    /// Once the countdown reads zero it never changes again, which is what ends
+    /// the clock rather than letting it spin.
+    func testAZeroCountdownIsNeverWaitedFor() {
+        XCTAssertNil(MenuBarCountdown.nextChangeDelay(remainingSeconds: 0))
+    }
+
+    /// Every wait has to land exactly on the change: a second early and the
+    /// app wakes for nothing, a second late and the label is showing a reading
+    /// it should already have replaced. This sweeps every value the app can
+    /// reach — the longest preset Session is two hours.
+    func testEveryWaitLandsExactlyOnTheNextChange() {
+        for remaining in 1...7200 {
+            guard let delay = MenuBarCountdown.nextChangeDelay(remainingSeconds: remaining) else {
+                XCTFail("no wait for a Session with \(remaining) seconds left")
+                continue
+            }
+
+            let waited = Int(delay.components.seconds)
+
+            XCTAssertNotEqual(
+                MenuBarCountdown.text(remainingSeconds: remaining - waited),
+                MenuBarCountdown.text(remainingSeconds: remaining),
+                "waiting \(waited)s from \(remaining)s left has not reached the change"
+            )
+
+            XCTAssertEqual(
+                MenuBarCountdown.text(remainingSeconds: remaining - waited + 1),
+                MenuBarCountdown.text(remainingSeconds: remaining),
+                "the text had already changed before \(waited)s from \(remaining)s left"
+            )
+        }
+    }
+
+    func testTheCountdownIsOffUntilItIsAskedFor() {
+        XCTAssertFalse(MenuBarCountdownPreference.defaultValue)
     }
 }

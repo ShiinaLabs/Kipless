@@ -51,6 +51,8 @@ final class LocalizationTests: XCTestCase {
             LocalizedStringResource.settingsLaunchAtLoginApproval.key,
             LocalizedStringResource.settingsLaunchAtLoginDescription.key,
             LocalizedStringResource.settingsLaunchAtLoginTitle.key,
+            LocalizedStringResource.settingsMenuBarCountdownDescription.key,
+            LocalizedStringResource.settingsMenuBarCountdownTitle.key,
             LocalizedStringResource.settingsModeTableColumnDisplaySleep.key,
             LocalizedStringResource.settingsModeTableColumnIdleSleep.key,
             LocalizedStringResource.settingsModeTableColumnLidSleep.key,
@@ -131,8 +133,14 @@ final class LocalizationTests: XCTestCase {
     /// copy differs in every language keeps a missing or untranslated resource
     /// from passing silently.
     func testEveryShippedLocalizationResolvesItsOwnCopy() {
-        let sampleKey = "permission.closedLid.error.notResponding"
-        let english = Bundle.main.localizedString(forKey: sampleKey, value: nil, table: nil)
+        let sampleKeys = [
+            "permission.closedLid.error.notResponding",
+            "settings.menuBarCountdown.title",
+            "settings.menuBarCountdown.description"
+        ]
+        let english = sampleKeys.map {
+            Bundle.main.localizedString(forKey: $0, value: nil, table: nil)
+        }
         let shipped = ["de", "es", "fr", "it", "ja", "ko", "pt-BR", "zh-Hans", "zh-Hant"]
 
         for language in shipped {
@@ -148,9 +156,11 @@ final class LocalizationTests: XCTestCase {
                 continue
             }
 
-            let translated = bundle.localizedString(forKey: sampleKey, value: nil, table: nil)
-            XCTAssertFalse(translated.isEmpty, "\(language) has no value for \(sampleKey)")
-            XCTAssertNotEqual(translated, english, "\(language) fell back to English")
+            for (index, key) in sampleKeys.enumerated() {
+                let translated = bundle.localizedString(forKey: key, value: nil, table: nil)
+                XCTAssertFalse(translated.isEmpty, "\(language) has no value for \(key)")
+                XCTAssertNotEqual(translated, english[index], "\(language) fell back to English for \(key)")
+            }
         }
     }
 }

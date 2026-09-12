@@ -11,7 +11,8 @@ struct KiplessApp: App {
             KiplessPopoverView()
                 .environment(sessionManager)
         } label: {
-            MenuBarLabel(isActive: sessionManager.isActive)
+            MenuBarLabel()
+                .environment(sessionManager)
         }
         .menuBarExtraStyle(.window)
 

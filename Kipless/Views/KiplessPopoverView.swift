@@ -674,7 +674,7 @@ struct KiplessPopoverView: View {
         WindowVisibilityProbe { isVisible in
             presentation.update(
                 isVisible: isVisible,
-                isCountingDown: manager.session?.expiresAt != nil
+                expiresAt: manager.session?.expiresAt
             )
         }
         .frame(width: 0, height: 0)
@@ -684,7 +684,7 @@ struct KiplessPopoverView: View {
     private func updatePresentationClock() {
         presentation.update(
             isVisible: presentation.isVisible,
-            isCountingDown: manager.session?.expiresAt != nil
+            expiresAt: manager.session?.expiresAt
         )
     }
 

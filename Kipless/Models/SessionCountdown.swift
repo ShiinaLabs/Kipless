@@ -1,6 +1,10 @@
 import Foundation
 
-/// Turns a remaining-seconds value into the one line the popover shows.
+/// Turns a remaining-seconds value into a countdown written out in words.
+///
+/// Both places that draw a countdown draw a clock instead — "29:43" in the
+/// popover, "29m" in the menu bar — so this is the form to read out rather than
+/// to look at, and it is what the menu bar countdown is announced as.
 enum SessionCountdown {
     static func text(forRemainingSeconds seconds: Int) -> String {
         let seconds = max(0, seconds)

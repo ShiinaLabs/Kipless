@@ -50,6 +50,10 @@ final class WakeSessionTests: XCTestCase {
 
     func testSettingsCopyKeepsThePanelConcise() {
         XCTAssertEqual(SettingsCopy.launchAtLoginDescription, "Start Kipless automatically when you sign in.")
+        XCTAssertEqual(
+            SettingsCopy.menuBarCountdownDescription,
+            "Show the time remaining in the menu bar while a session is running."
+        )
         XCTAssertEqual(SettingsCopy.aboutDescription, "Lightweight and private.")
         XCTAssertEqual(SettingsCopy.closedLidApprovalTitle, "Allow Closed Lid")
         XCTAssertEqual(
