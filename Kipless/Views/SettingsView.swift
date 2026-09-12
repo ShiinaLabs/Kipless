@@ -34,7 +34,7 @@ private enum SettingsModeStatus {
 
     var icon: String {
         switch self {
-        case .blocked: "⛔️"
+        case .blocked: "❌"
         case .allowed: "✅"
         }
     }

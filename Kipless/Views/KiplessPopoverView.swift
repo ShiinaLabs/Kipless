@@ -196,7 +196,7 @@ private struct TimedControlView: View {
 
             if ringProgress > 0 {
                 Circle()
-                    .trim(from: 0, to: 0.985 * ringProgress)
+                    .trim(from: 0, to: ringProgress)
                     .stroke(accent, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                     .rotationEffect(.degrees(-90))
                     .animation(
@@ -505,21 +505,27 @@ struct KiplessPopoverView: View {
                 .font(.system(size: 8.5))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
-                .padding(.bottom, KiplessLayout.explanationBottomPadding)
+            // Keep every semantic item in one vertical flow. SwiftUI divides
+            // the available space between these spacers evenly, so shorter or
+            // longer localized copy changes the gap size without creating a
+            // single oversized blank area.
+            Spacer(minLength: 0)
 
-            VStack(alignment: .leading, spacing: KiplessLayout.modeOptionSpacing) {
-                ForEach(Array(WakeMode.allCases.enumerated()), id: \.element.id) { index, candidate in
-                    modeOption(candidate)
-                        .overlay(alignment: .top) {
-                            if index > 0 {
-                                Divider()
-                                    .padding(.leading, 23)
-                            }
+            ForEach(Array(WakeMode.allCases.enumerated()), id: \.element.id) { index, candidate in
+                modeOption(candidate)
+                    .overlay(alignment: .top) {
+                        if index > 0 {
+                            Divider()
+                                .padding(.leading, 23)
                         }
+                    }
+
+                if index < WakeMode.allCases.count - 1 {
+                    Spacer(minLength: 0)
                 }
             }
 
-            Spacer(minLength: KiplessLayout.minimumContentGap)
+            Spacer(minLength: 0)
 
             HStack(spacing: 5) {
                 Text(LocalizedStringResource.sessionDurationTitle)
@@ -527,8 +533,6 @@ struct KiplessPopoverView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .fixedSize(horizontal: true, vertical: false)
-
-                Spacer(minLength: 0)
 
                 Picker(String(localized: LocalizedStringResource.sessionDurationTitle), selection: $duration) {
                     ForEach(WakeDuration.allCases) { duration in
@@ -551,7 +555,7 @@ struct KiplessPopoverView: View {
         }
         .padding(.horizontal, KiplessLayout.optionsHorizontalPadding)
         .padding(.vertical, KiplessLayout.optionsVerticalPadding)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 
     private func modeOption(_ candidate: WakeMode) -> some View {

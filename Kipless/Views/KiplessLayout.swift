@@ -96,7 +96,7 @@ enum KiplessLayout {
     static let timerDiameter: CGFloat = 138
 
     static let optionsHorizontalPadding: CGFloat = 18
-    static let optionsVerticalPadding: CGFloat = 4
+    static let optionsVerticalPadding: CGFloat = 8
     static let explanationLineHeight: CGFloat = 11
     static let explanationBottomPadding: CGFloat = 4
     static let modeOptionVerticalPadding: CGFloat = 4
