@@ -104,6 +104,18 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
             -exportPath "$RUNNER_TEMP/export"
 
+      - name: Verify helper packaging
+        run: |
+          APP="$RUNNER_TEMP/export/Kipless.app"
+          HELPER="$APP/Contents/Resources/KiplessSleepHelper"
+          PLIST="$APP/Contents/Library/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist"
+          test -x "$HELPER"
+          test -f "$PLIST"
+          plutil -lint "$PLIST"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :Label' "$PLIST")" = "com.kaoru.kipless.sleep-helper"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$PLIST")" = "Contents/Resources/KiplessSleepHelper"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.sleep-helper' "$PLIST")" = "true"
+
       - name: Build DMG
         id: dmg
         run: |

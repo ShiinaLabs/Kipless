@@ -15,15 +15,19 @@ final class LocalizationTests: XCTestCase {
     func testCoreCopyHasEnglishFallbackValues() {
         XCTAssertEqual(
             String(localized: KiplessStrings.modeSystemTitle),
-            "Let the screen turn off"
+            "System"
         )
         XCTAssertEqual(
             String(localized: KiplessStrings.modeDisplayTitle),
-            "Keep the screen on"
+            "Display"
         )
         XCTAssertEqual(
             String(localized: KiplessStrings.modeExplanation),
-            "Your Mac stays awake in both options."
+            "Choose how your Mac stays awake."
+        )
+        XCTAssertEqual(
+            String(localized: KiplessStrings.modeClosedLidTitle),
+            "Closed Lid"
         )
     }
 

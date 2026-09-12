@@ -24,19 +24,30 @@ final class WakeSessionManager {
     private(set) var now: Date
 
     private let assertions: SleepAsserting
+    private let lidSleepOverride: LidSleepOverrideClient
     private let dateProvider: () -> Date
     private var ticker: Task<Void, Never>?
+    private var transitionTask: Task<Void, Never>?
+    private var transitionID = 0
+    private var pendingTransitionID: Int?
 
     init(
         assertions: SleepAsserting = SleepAssertionManager(),
+        lidSleepOverride: LidSleepOverrideClient = PrivilegedHelperClient(),
         dateProvider: @escaping () -> Date = Date.init
     ) {
         self.assertions = assertions
+        self.lidSleepOverride = lidSleepOverride
         self.dateProvider = dateProvider
         self.now = dateProvider()
     }
 
     var isActive: Bool { session != nil }
+
+    /// True while the Closed Lid backend is acquiring or releasing its lease.
+    /// A transition is kept separate from `isActive` so the UI cannot start a
+    /// second Session while the previous helper operation is still unwinding.
+    private(set) var isTransitioning = false
 
     /// Seconds left in the session, or `nil` when it runs until stopped.
     ///
@@ -54,7 +65,18 @@ final class WakeSessionManager {
     /// If the power assertion cannot be created the session does not start, so
     /// the UI can never claim to be keeping the Mac awake when it is not.
     func start(mode: WakeMode, duration: WakeDuration) {
+        guard !isTransitioning else { return }
+
         stop()
+
+        // Stopping an active Closed Lid session has an asynchronous cleanup
+        // phase. Do not overlap a new acquire with that release.
+        guard !isTransitioning else { return }
+
+        if mode == .closedLid {
+            startClosedLidSession(duration: duration)
+            return
+        }
 
         do {
             try assertions.acquire(for: mode)
@@ -70,9 +92,32 @@ final class WakeSessionManager {
 
     /// Ends the session and releases the assertion. Safe to call when inactive.
     func stop() {
+        transitionID &+= 1
         stopTicking()
-        assertions.release()
+
+        let wasClosedLid = session?.mode == .closedLid
         session = nil
+        assertions.release()
+
+        if wasClosedLid {
+            beginLidSleepOverrideRelease()
+        } else if pendingTransitionID == nil {
+            isTransitioning = false
+        }
+    }
+
+    /// Waits for any Closed Lid acquire/release operation before allowing the
+    /// app to terminate. Normal cleanup still goes through `stop()` so this is
+    /// also safe when no Session is running.
+    func prepareForTermination(completion: @escaping @MainActor () -> Void) {
+        stop()
+
+        Task { @MainActor [weak self] in
+            if let transitionTask = self?.transitionTask {
+                await transitionTask.value
+            }
+            completion()
+        }
     }
 
     func dismissError() {
@@ -100,6 +145,99 @@ final class WakeSessionManager {
     private func stopTicking() {
         ticker?.cancel()
         ticker = nil
+    }
+
+    // MARK: - Closed Lid backend
+
+    private func startClosedLidSession(duration: WakeDuration) {
+        transitionID &+= 1
+        let id = transitionID
+        pendingTransitionID = id
+        isTransitioning = true
+        errorMessage = nil
+
+        transitionTask = Task { @MainActor [weak self] in
+            await self?.performClosedLidStart(duration: duration, transitionID: id)
+        }
+    }
+
+    private func performClosedLidStart(
+        duration: WakeDuration,
+        transitionID id: Int
+    ) async {
+        var assertionAcquired = false
+        var overrideAcquireStarted = false
+
+        do {
+            // Closed Lid includes the ordinary system-awake assertion. The
+            // helper lease is acquired only after that first step succeeds.
+            try assertions.acquire(for: .closedLid)
+            assertionAcquired = true
+
+            overrideAcquireStarted = true
+            try await lidSleepOverride.acquireLidSleepOverride()
+
+            // `stop()` can run while the XPC request is in flight. Roll back
+            // instead of committing a Session for a request that was already
+            // cancelled by the user or by app termination.
+            guard !Task.isCancelled, self.transitionID == id else {
+                try? await lidSleepOverride.releaseLidSleepOverride()
+                assertions.release()
+                finishTransition(id)
+                return
+            }
+
+            session = WakeSession(
+                mode: .closedLid,
+                startedAt: dateProvider(),
+                duration: duration
+            )
+            errorMessage = nil
+            startTicking()
+        } catch {
+            // Release is intentionally attempted even when acquire returned
+            // an error: an XPC reply can be lost after the helper has already
+            // changed its state. The helper operation is idempotent.
+            if overrideAcquireStarted {
+                try? await lidSleepOverride.releaseLidSleepOverride()
+            }
+            if assertionAcquired { assertions.release() }
+
+            if self.transitionID == id {
+                errorMessage = error.localizedDescription
+            }
+        }
+
+        finishTransition(id)
+    }
+
+    private func beginLidSleepOverrideRelease() {
+        let id = transitionID
+        pendingTransitionID = id
+        isTransitioning = true
+
+        transitionTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
+            do {
+                try await lidSleepOverride.releaseLidSleepOverride()
+            } catch {
+                // Invalidation gives the helper a second chance to release
+                // the connection-bound lease when the remote call itself
+                // fails.
+                lidSleepOverride.invalidate()
+                errorMessage = error.localizedDescription
+            }
+
+            finishTransition(id)
+        }
+    }
+
+    private func finishTransition(_ id: Int) {
+        guard pendingTransitionID == id else { return }
+        pendingTransitionID = nil
+        transitionTask = nil
+        isTransitioning = false
     }
 
     private func tick() {

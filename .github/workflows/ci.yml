@@ -36,6 +36,15 @@ jobs:
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO
 
+      - name: Build sleep helper
+        run: |
+          xcodebuild build \
+            -project Kipless.xcodeproj \
+            -scheme KiplessSleepHelper \
+            -configuration Debug \
+            -destination 'platform=macOS' \
+            CODE_SIGNING_ALLOWED=NO
+
       - name: Validate shell scripts
         run: bash -n scripts/*.sh
 

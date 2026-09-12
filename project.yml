@@ -35,6 +35,19 @@ targets:
       - path: Kipless
         excludes:
           - Info.plist
+          - Resources/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist
+      - path: Kipless/Shared
+      - path: Kipless/Resources/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist
+        buildPhase:
+          copyFiles:
+            destination: wrapper
+            subpath: Contents/Library/LaunchDaemons
+    dependencies:
+      - target: KiplessSleepHelper
+        embed: true
+        copy:
+          destination: wrapper
+          subpath: Contents/Resources
     resources:
       - path: Kipless/Resources/Localizable.xcstrings
     settings:
@@ -68,6 +81,19 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.kaoru.kipless.power-test-helper
         PRODUCT_NAME: KiplessPowerTestHelper
 
+  KiplessSleepHelper:
+    type: tool
+    platform: macOS
+    sources:
+      - path: KiplessSleepHelper
+      - path: Kipless/Shared
+      - path: Kipless/Services/PMSetSleepOverrideDriver.swift
+      - path: Kipless/Services/SleepOverrideController.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.kaoru.kipless.sleep-helper
+        PRODUCT_NAME: KiplessSleepHelper
+
   KiplessTests:
     type: bundle.unit-test
     platform: macOS
@@ -87,6 +113,11 @@ schemes:
     build:
       targets:
         KiplessPowerTestHelper: all
+
+  KiplessSleepHelper:
+    build:
+      targets:
+        KiplessSleepHelper: all
 
   Kipless:
     build:

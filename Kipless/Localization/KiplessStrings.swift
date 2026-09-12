@@ -32,6 +32,41 @@ enum KiplessStrings {
         defaultValue: "About",
         comment: "The about settings section title."
     )
+    static let settingsWakeModesSection = LocalizedStringResource(
+        "settings.section.wakeModes",
+        defaultValue: "Wake modes",
+        comment: "The settings section that explains each wake mode."
+    )
+    static let settingsModeColumnMode = LocalizedStringResource(
+        "settings.modeTable.column.mode",
+        defaultValue: "Mode",
+        comment: "Table header for the wake mode name."
+    )
+    static let settingsModeColumnIdleSleep = LocalizedStringResource(
+        "settings.modeTable.column.idleSleep",
+        defaultValue: "Idle sleep",
+        comment: "Table header for whether idle system sleep is blocked."
+    )
+    static let settingsModeColumnDisplaySleep = LocalizedStringResource(
+        "settings.modeTable.column.displaySleep",
+        defaultValue: "Display sleep",
+        comment: "Table header for whether display sleep is blocked."
+    )
+    static let settingsModeColumnLidSleep = LocalizedStringResource(
+        "settings.modeTable.column.lidSleep",
+        defaultValue: "Lid-close sleep",
+        comment: "Table header for whether lid-close sleep is blocked."
+    )
+    static let settingsModeBlocked = LocalizedStringResource(
+        "settings.modeTable.status.blocked",
+        defaultValue: "Blocked",
+        comment: "Status meaning a sleep behavior is prevented."
+    )
+    static let settingsModeAllowed = LocalizedStringResource(
+        "settings.modeTable.status.allowed",
+        defaultValue: "Allowed",
+        comment: "Status meaning a sleep behavior follows macOS settings."
+    )
     static let settingsLaunchAtLoginTitle = LocalizedStringResource(
         "settings.launchAtLogin.title",
         defaultValue: "Launch at Login",
@@ -72,28 +107,38 @@ enum KiplessStrings {
 
     static let modeExplanation = LocalizedStringResource(
         "session.mode.explanation",
-        defaultValue: "Your Mac stays awake in both options.",
-        comment: "Explains that both session modes keep the Mac awake."
+        defaultValue: "Choose how your Mac stays awake.",
+        comment: "Introduces the mutually exclusive wake modes."
     )
     static let modeSystemTitle = LocalizedStringResource(
-        "session.mode.screenMayTurnOff.title",
-        defaultValue: "Let the screen turn off",
-        comment: "Mode where the Mac keeps working while the display may turn off."
+        "session.mode.system.title",
+        defaultValue: "System",
+        comment: "Mode that keeps the Mac awake while allowing the display to turn off."
     )
     static let modeSystemSubtitle = LocalizedStringResource(
-        "session.mode.screenMayTurnOff.subtitle",
-        defaultValue: "Your Mac keeps working. Lock Screen follows your macOS settings.",
-        comment: "Explains that background work continues and macOS controls screen locking."
+        "session.mode.system.subtitle",
+        defaultValue: "Keep Mac awake. Display may turn off.",
+        comment: "Explains the System wake mode."
     )
     static let modeDisplayTitle = LocalizedStringResource(
-        "session.mode.screenStaysOn.title",
-        defaultValue: "Keep the screen on",
-        comment: "Mode where the display remains on."
+        "session.mode.display.title",
+        defaultValue: "Display",
+        comment: "Mode that keeps both the Mac and display awake."
     )
     static let modeDisplaySubtitle = LocalizedStringResource(
-        "session.mode.screenStaysOn.subtitle",
-        defaultValue: "Your Mac and screen stay awake.",
-        comment: "Explains that both the Mac and display remain awake."
+        "session.mode.display.subtitle",
+        defaultValue: "Keep Mac and display awake.",
+        comment: "Explains the Display wake mode."
+    )
+    static let modeClosedLidTitle = LocalizedStringResource(
+        "session.mode.closedLid.title",
+        defaultValue: "Closed Lid",
+        comment: "Mode that keeps a Mac awake when its lid is closed."
+    )
+    static let modeClosedLidSubtitle = LocalizedStringResource(
+        "session.mode.closedLid.subtitle",
+        defaultValue: "Keep Mac awake when the lid is closed.",
+        comment: "Explains the Closed Lid wake mode."
     )
 
     static let sessionDurationTitle = LocalizedStringResource(
@@ -216,6 +261,13 @@ enum KiplessStrings {
         settingsTitle,
         settingsGeneralSection,
         settingsAboutSection,
+        settingsWakeModesSection,
+        settingsModeColumnMode,
+        settingsModeColumnIdleSleep,
+        settingsModeColumnDisplaySleep,
+        settingsModeColumnLidSleep,
+        settingsModeBlocked,
+        settingsModeAllowed,
         settingsLaunchAtLoginTitle,
         settingsLaunchAtLoginDescription,
         settingsLaunchAtLoginApproval,
@@ -227,6 +279,8 @@ enum KiplessStrings {
         modeSystemSubtitle,
         modeDisplayTitle,
         modeDisplaySubtitle,
+        modeClosedLidTitle,
+        modeClosedLidSubtitle,
         sessionDurationTitle,
         sessionStart,
         sessionStop,

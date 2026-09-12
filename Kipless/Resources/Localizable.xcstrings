@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "∞" : {
-
+      "shouldTranslate" : false
     },
     "app.action.quit" : {
       "extractionState" : "stale",
@@ -230,51 +230,73 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Mac stays awake in both options."
+            "value" : "Choose how your Mac stays awake."
           }
         }
       }
     },
-    "session.mode.screenMayTurnOff.subtitle" : {
+    "session.mode.system.subtitle" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Mac keeps working. Lock Screen follows your macOS settings."
+            "value" : "Keep Mac awake. Display may turn off."
           }
         }
       }
     },
-    "session.mode.screenMayTurnOff.title" : {
+    "session.mode.system.title" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let the screen turn off"
+            "value" : "System"
           }
         }
       }
     },
-    "session.mode.screenStaysOn.subtitle" : {
+    "session.mode.display.subtitle" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your Mac and screen stay awake."
+            "value" : "Keep Mac and display awake."
           }
         }
       }
     },
-    "session.mode.screenStaysOn.title" : {
+    "session.mode.display.title" : {
       "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep the screen on"
+            "value" : "Display"
+          }
+        }
+      }
+    },
+    "session.mode.closedLid.subtitle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Mac awake when the lid is closed."
+          }
+        }
+      }
+    },
+    "session.mode.closedLid.title" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed Lid"
           }
         }
       }
@@ -396,6 +418,83 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "General"
+          }
+        }
+      }
+    },
+    "settings.section.wakeModes" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wake modes"
+          }
+        }
+      }
+    },
+    "settings.modeTable.column.mode" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mode"
+          }
+        }
+      }
+    },
+    "settings.modeTable.column.idleSleep" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Idle sleep"
+          }
+        }
+      }
+    },
+    "settings.modeTable.column.displaySleep" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Display sleep"
+          }
+        }
+      }
+    },
+    "settings.modeTable.column.lidSleep" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lid-close sleep"
+          }
+        }
+      }
+    },
+    "settings.modeTable.status.allowed" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allowed"
+          }
+        }
+      }
+    },
+    "settings.modeTable.status.blocked" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked"
           }
         }
       }

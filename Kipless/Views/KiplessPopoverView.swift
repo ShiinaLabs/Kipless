@@ -32,6 +32,7 @@ private struct WakeControlPanel: View {
     let timeText: String
     let ringProgress: Double
     let isActive: Bool
+    let isActionDisabled: Bool
     let accent: Color
     let action: () -> Void
 
@@ -45,6 +46,7 @@ private struct WakeControlPanel: View {
                     timeText: timeText,
                     ringProgress: ringProgress,
                     isActive: isActive,
+                    isActionDisabled: isActionDisabled,
                     accent: accent,
                     action: action
                 )
@@ -52,6 +54,7 @@ private struct WakeControlPanel: View {
             case .indefinite:
                 IndefiniteControlView(
                     isActive: isActive,
+                    isActionDisabled: isActionDisabled,
                     accent: accent,
                     action: action
                 )
@@ -79,6 +82,7 @@ private struct TimedControlView: View {
     let timeText: String
     let ringProgress: Double
     let isActive: Bool
+    let isActionDisabled: Bool
     let accent: Color
     let action: () -> Void
 
@@ -106,7 +110,11 @@ private struct TimedControlView: View {
                     .monospacedDigit()
                     .kerning(-1.2)
 
-                SessionActionButton(isActive: isActive, action: action)
+                SessionActionButton(
+                    isActive: isActive,
+                    isDisabled: isActionDisabled,
+                    action: action
+                )
             }
         }
         .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
@@ -171,6 +179,7 @@ private struct IndefiniteParticleTrail: View {
 
 private struct IndefiniteControlView: View {
     let isActive: Bool
+    let isActionDisabled: Bool
     let accent: Color
     let action: () -> Void
 
@@ -209,7 +218,11 @@ private struct IndefiniteControlView: View {
                             : .opacity.combined(with: .scale(scale: 0.96))
                     )
 
-                    SessionActionButton(isActive: isActive, action: action)
+                    SessionActionButton(
+                        isActive: isActive,
+                        isDisabled: isActionDisabled,
+                        action: action
+                    )
                 }
             }
         }
@@ -223,6 +236,7 @@ private struct IndefiniteControlView: View {
 
 private struct SessionActionButton: View {
     let isActive: Bool
+    let isDisabled: Bool
     let action: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -245,6 +259,8 @@ private struct SessionActionButton: View {
         }
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
+        .disabled(isDisabled)
+        .opacity(isDisabled ? 0.52 : 1)
         .animation(
             KiplessMotion.sessionState(reduceMotion: reduceMotion),
             value: isActive
@@ -278,7 +294,7 @@ private final class KiplessSettingsWindowController: NSWindowController {
 
     private init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 330),
+            contentRect: NSRect(x: 0, y: 0, width: 520, height: 500),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -323,13 +339,12 @@ struct KiplessPopoverView: View {
 
             HStack(spacing: 0) {
                 sessionControlPanel
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                Divider()
+                    .frame(width: KiplessLayout.sessionPanelWidth, height: KiplessLayout.sessionPanelHeight)
 
                 optionsPanel
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(width: KiplessLayout.optionsPanelWidth, height: KiplessLayout.sessionPanelHeight)
             }
+            .frame(width: KiplessLayout.popoverWidth)
             .frame(height: KiplessLayout.sessionPanelHeight)
 
             Divider()
@@ -347,6 +362,7 @@ struct KiplessPopoverView: View {
             timeText: timeText,
             ringProgress: ringProgress,
             isActive: manager.isActive,
+            isActionDisabled: manager.isTransitioning,
             accent: quietAccent,
             action: toggleSession
         )
@@ -374,14 +390,15 @@ struct KiplessPopoverView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.bottom, KiplessLayout.explanationBottomPadding)
 
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: KiplessLayout.modeOptionSpacing) {
                 ForEach(Array(WakeMode.allCases.enumerated()), id: \.element.id) { index, candidate in
-                    if index > 0 {
-                        Divider()
-                            .padding(.leading, 23)
-                    }
-
                     modeOption(candidate)
+                        .overlay(alignment: .top) {
+                            if index > 0 {
+                                Divider()
+                                    .padding(.leading, 23)
+                            }
+                        }
                 }
             }
 
@@ -406,11 +423,14 @@ struct KiplessPopoverView: View {
                 .controlSize(.small)
                 .frame(width: KiplessLayout.durationPickerWidth, alignment: .leading)
                 .layoutPriority(1)
-                .disabled(manager.isActive)
+                .disabled(manager.isActive || manager.isTransitioning)
             }
             .frame(height: KiplessLayout.durationRowHeight)
-            .opacity(manager.isActive ? 0.46 : 1)
-            .animation(.easeInOut(duration: 0.2), value: manager.isActive)
+            .opacity(manager.isActive || manager.isTransitioning ? 0.46 : 1)
+            .animation(
+                .easeInOut(duration: 0.2),
+                value: manager.isActive || manager.isTransitioning
+            )
         }
         .padding(.horizontal, KiplessLayout.optionsHorizontalPadding)
         .padding(.vertical, KiplessLayout.optionsVerticalPadding)
@@ -440,9 +460,12 @@ struct KiplessPopoverView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .disabled(manager.isActive)
-        .opacity(manager.isActive ? 0.46 : 1)
-        .animation(.easeInOut(duration: 0.2), value: manager.isActive)
+        .disabled(manager.isActive || manager.isTransitioning)
+        .opacity(manager.isActive || manager.isTransitioning ? 0.46 : 1)
+        .animation(
+            .easeInOut(duration: 0.2),
+            value: manager.isActive || manager.isTransitioning
+        )
         .accessibilityElement(children: .combine)
         .accessibilityLabel(candidate.title)
         .accessibilityValue(candidate.subtitle)

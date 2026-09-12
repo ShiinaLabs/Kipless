@@ -10,12 +10,17 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
     /// since a display cannot be kept on by a sleeping machine.
     case display
 
+    /// Blocks idle system sleep and temporarily overrides normal lid-close
+    /// sleep. The display may still switch off on its own schedule.
+    case closedLid
+
     var id: String { rawValue }
 
     var powerAssertionMode: PowerAssertionMode {
         switch self {
         case .system: .system
         case .display: .display
+        case .closedLid: .system
         }
     }
 
@@ -24,6 +29,7 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: String(localized: KiplessStrings.modeSystemTitle)
         case .display: String(localized: KiplessStrings.modeDisplayTitle)
+        case .closedLid: String(localized: KiplessStrings.modeClosedLidTitle)
         }
     }
 
@@ -32,6 +38,7 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: String(localized: KiplessStrings.modeSystemSubtitle)
         case .display: String(localized: KiplessStrings.modeDisplaySubtitle)
+        case .closedLid: String(localized: KiplessStrings.modeClosedLidSubtitle)
         }
     }
 

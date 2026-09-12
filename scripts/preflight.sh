@@ -36,6 +36,25 @@ run_release_build() {
         -quiet
 }
 
+run_release_bundle_checks() {
+    local app_path="$DERIVED_DATA_PATH/Build/Products/Release/Kipless.app"
+    local helper_path="$app_path/Contents/Resources/KiplessSleepHelper"
+    local helper_plist="$app_path/Contents/Library/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist"
+
+    [[ -x "$helper_path" ]] || {
+        printf 'Sleep helper is missing or not executable: %s\n' "$helper_path" >&2
+        return 1
+    }
+    [[ -f "$helper_plist" ]] || {
+        printf 'Sleep helper LaunchDaemon plist is missing: %s\n' "$helper_plist" >&2
+        return 1
+    }
+    plutil -lint "$helper_plist" >/dev/null
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :Label' "$helper_plist")" == 'com.kaoru.kipless.sleep-helper' ]] || return 1
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$helper_plist")" == 'Contents/Resources/KiplessSleepHelper' ]] || return 1
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.sleep-helper' "$helper_plist")" == 'true' ]] || return 1
+}
+
 final_cleanup() {
     local cleanup_result=0
     if ! assert_no_kipless_assertion >"$PREFLIGHT_DIR/final-assertions.txt" 2>&1; then
@@ -51,6 +70,7 @@ trap final_cleanup EXIT
 printf 'Kipless Preflight\n'
 run_check 'Unit tests' run_unit_tests
 run_check 'Release build' run_release_build
+run_check 'Release helper bundle' run_release_bundle_checks
 run_check 'System assertion' "$SCRIPT_DIR/test-power-assertions.sh" system
 run_check 'Display assertion' "$SCRIPT_DIR/test-power-assertions.sh" display
 run_check 'Assertion replacement' "$SCRIPT_DIR/test-power-assertions.sh" replacement

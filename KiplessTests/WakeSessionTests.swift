@@ -30,17 +30,22 @@ final class WakeSessionTests: XCTestCase {
             WakeDuration.allCases,
             [.minutes15, .minutes30, .hour1, .hour2, .indefinite]
         )
-        XCTAssertEqual(WakeMode.allCases, [.system, .display])
+        XCTAssertEqual(WakeMode.allCases, [.system, .display, .closedLid])
     }
 
     func testWakeModesUseHierarchicalUserFacingLabels() {
-        XCTAssertEqual(WakeMode.system.title, "Let the screen turn off")
+        XCTAssertEqual(WakeMode.system.title, "System")
         XCTAssertEqual(
             WakeMode.system.subtitle,
-            "Your Mac keeps working. Lock Screen follows your macOS settings."
+            "Keep Mac awake. Display may turn off."
         )
-        XCTAssertEqual(WakeMode.display.title, "Keep the screen on")
-        XCTAssertEqual(WakeMode.display.subtitle, "Your Mac and screen stay awake.")
+        XCTAssertEqual(WakeMode.display.title, "Display")
+        XCTAssertEqual(WakeMode.display.subtitle, "Keep Mac and display awake.")
+        XCTAssertEqual(WakeMode.closedLid.title, "Closed Lid")
+        XCTAssertEqual(
+            WakeMode.closedLid.subtitle,
+            "Keep Mac awake when the lid is closed."
+        )
     }
 
     func testSettingsCopyKeepsThePanelConcise() {

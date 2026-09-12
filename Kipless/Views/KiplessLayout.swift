@@ -88,21 +88,23 @@ struct WakeControlPresentation: Equatable {
 }
 
 enum KiplessLayout {
-    static let popoverWidth: CGFloat = 360
+    static let popoverWidth: CGFloat = 384
     static let sessionPanelHeight: CGFloat = 180
+    static let sessionPanelWidth: CGFloat = 180
+    static let optionsPanelWidth: CGFloat = 204
     static let footerHeight: CGFloat = 36
     static let timerDiameter: CGFloat = 138
 
     static let optionsHorizontalPadding: CGFloat = 18
-    static let optionsVerticalPadding: CGFloat = 8
+    static let optionsVerticalPadding: CGFloat = 4
     static let explanationLineHeight: CGFloat = 11
     static let explanationBottomPadding: CGFloat = 4
-    static let modeOptionVerticalPadding: CGFloat = 3
+    static let modeOptionVerticalPadding: CGFloat = 4
+    static let modeOptionSpacing: CGFloat = 5
     static let modeTitleLineHeight: CGFloat = 13
     static let modeSubtitleLineHeight: CGFloat = 11
     static let modeTextSpacing: CGFloat = 2
-    static let dividerHeight: CGFloat = 1
-    static let minimumContentGap: CGFloat = 4
+    static let minimumContentGap: CGFloat = 0
     static let durationRowHeight: CGFloat = 18
     static let durationPickerWidth: CGFloat = 96
 
@@ -117,13 +119,13 @@ enum KiplessLayout {
                 + (CGFloat(lines.subtitle) * modeSubtitleLineHeight)
                 + modeTextSpacing
         }
-        let dividersHeight = CGFloat(max(modeLineCounts.count - 1, 0)) * dividerHeight
+        let modeSpacingHeight = CGFloat(max(modeLineCounts.count - 1, 0)) * modeOptionSpacing
 
         return (optionsVerticalPadding * 2)
             + (CGFloat(explanationLines) * explanationLineHeight)
             + explanationBottomPadding
             + modesHeight
-            + dividersHeight
+            + modeSpacingHeight
             + minimumContentGap
             + durationRowHeight
     }

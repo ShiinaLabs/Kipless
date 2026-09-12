@@ -2,16 +2,22 @@ import XCTest
 @testable import Kipless
 
 final class KiplessLayoutTests: XCTestCase {
-    func testQuietOptionsFitWithWrappedEnglishModeCopy() {
+    func testQuietOptionsFitWithThreeEnglishModes() {
         let contentHeight = KiplessLayout.optionsContentHeight(
-            explanationLines: 2,
+            explanationLines: 1,
             modeLineCounts: [
-                (title: 2, subtitle: 3),
+                (title: 1, subtitle: 2),
+                (title: 1, subtitle: 1),
                 (title: 1, subtitle: 2)
             ]
         )
 
         XCTAssertLessThanOrEqual(contentHeight, KiplessLayout.sessionPanelHeight)
+    }
+
+    func testThreeModeRowsHaveIntentionalBreathingRoom() {
+        XCTAssertEqual(KiplessLayout.modeOptionVerticalPadding, 4)
+        XCTAssertEqual(KiplessLayout.modeOptionSpacing, 5)
     }
 
     func testDurationPickerHasRoomForTheEnglishPresetLabel() {
@@ -66,6 +72,19 @@ final class KiplessLayoutTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(
             IndefiniteControlLayout.compact.particleVerticalOffset,
             5
+        )
+    }
+
+    func testOptionsPanelIsSlightlyWiderThanSessionPanel() {
+        XCTAssertEqual(KiplessLayout.sessionPanelWidth, 180)
+        XCTAssertEqual(KiplessLayout.optionsPanelWidth, 204)
+        XCTAssertEqual(
+            KiplessLayout.sessionPanelWidth + KiplessLayout.optionsPanelWidth,
+            384
+        )
+        XCTAssertEqual(
+            KiplessLayout.optionsPanelWidth - KiplessLayout.sessionPanelWidth,
+            24
         )
     }
 }

@@ -17,6 +17,7 @@ final class PowerAssertionDriverTests: XCTestCase {
     func testWakeModesUseTheSharedPowerAssertionModes() {
         XCTAssertEqual(WakeMode.system.powerAssertionMode, .system)
         XCTAssertEqual(WakeMode.display.powerAssertionMode, .display)
+        XCTAssertEqual(WakeMode.closedLid.powerAssertionMode, .system)
     }
 
     func testAssertionCreationErrorDoesNotRepeatTheModeTitle() {

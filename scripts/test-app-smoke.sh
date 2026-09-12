@@ -7,6 +7,8 @@ source "$SCRIPT_DIR/test-common.sh"
 
 APP_PATH="${KIPLESS_APP_PATH:-$DERIVED_DATA_PATH/Build/Products/Release/Kipless.app}"
 APP_EXECUTABLE="$APP_PATH/Contents/MacOS/Kipless"
+SLEEP_HELPER_PATH="$APP_PATH/Contents/Resources/KiplessSleepHelper"
+SLEEP_HELPER_PLIST="$APP_PATH/Contents/Library/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist"
 APP_PID=""
 TEST_SUCCEEDED=0
 
@@ -99,6 +101,31 @@ if find "$APP_PATH" -type f -name 'KiplessPowerTestHelper' -print -quit | grep -
     printf 'Power test helper must not be included in the app bundle.\n' >&2
     exit 1
 fi
+
+[[ -x "$SLEEP_HELPER_PATH" ]] || {
+    printf 'Sleep helper was not embedded at %s\n' "$SLEEP_HELPER_PATH" >&2
+    exit 1
+}
+[[ -f "$SLEEP_HELPER_PLIST" ]] || {
+    printf 'Sleep helper LaunchDaemon plist was not embedded at %s\n' "$SLEEP_HELPER_PLIST" >&2
+    exit 1
+}
+plutil -lint "$SLEEP_HELPER_PLIST" >/dev/null
+helper_label="$(/usr/libexec/PlistBuddy -c 'Print :Label' "$SLEEP_HELPER_PLIST")"
+helper_program="$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$SLEEP_HELPER_PLIST")"
+helper_mach_service="$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.sleep-helper' "$SLEEP_HELPER_PLIST")"
+[[ "$helper_label" == 'com.kaoru.kipless.sleep-helper' ]] || {
+    printf 'Unexpected sleep helper label: %s\n' "$helper_label" >&2
+    exit 1
+}
+[[ "$helper_program" == 'Contents/Resources/KiplessSleepHelper' ]] || {
+    printf 'Unexpected sleep helper program path: %s\n' "$helper_program" >&2
+    exit 1
+}
+[[ "$helper_mach_service" == 'true' ]] || {
+    printf 'Sleep helper Mach service is not enabled.\n' >&2
+    exit 1
+}
 
 printf '  ad-hoc code signature\n'
 codesign --verify --deep --strict "$APP_PATH"

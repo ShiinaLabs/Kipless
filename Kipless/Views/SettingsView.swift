@@ -10,30 +10,68 @@ enum SettingsCopy {
     }
 }
 
+private struct SettingsModeRow: Identifiable {
+    let mode: WakeMode
+    let idleSleep: SettingsModeStatus
+    let displaySleep: SettingsModeStatus
+    let lidSleep: SettingsModeStatus
+
+    var id: String { mode.rawValue }
+}
+
+private enum SettingsModeStatus {
+    case blocked
+    case allowed
+
+    var icon: String {
+        switch self {
+        case .blocked: "⛔️"
+        case .allowed: "✅"
+        }
+    }
+
+    var accessibilityLabel: LocalizedStringResource {
+        switch self {
+        case .blocked: KiplessStrings.settingsModeBlocked
+        case .allowed: KiplessStrings.settingsModeAllowed
+        }
+    }
+}
+
+private let settingsModeColumnWidth: CGFloat = 72
+private let settingsModeTitleWidth: CGFloat = 184
+
 /// A compact, single-column settings window for the small v1 surface area.
 struct SettingsView: View {
     @State private var launchAtLogin = LaunchAtLoginService()
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(KiplessStrings.settingsTitle)
-                .font(.system(size: 24, weight: .semibold, design: .rounded))
+        ScrollView(.vertical) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(KiplessStrings.settingsTitle)
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
 
-            Text(KiplessStrings.appName)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.secondary)
-                .padding(.top, 4)
+                Text(KiplessStrings.appName)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.top, 4)
 
-            settingsSection(String(localized: KiplessStrings.settingsGeneralSection)) {
-                generalSection
+                settingsSection(String(localized: KiplessStrings.settingsGeneralSection)) {
+                    generalSection
+                }
+
+                settingsSection(String(localized: KiplessStrings.settingsWakeModesSection)) {
+                    wakeModesSection
+                }
+
+                settingsSection(String(localized: KiplessStrings.settingsAboutSection)) {
+                    aboutSection
+                }
             }
-
-            settingsSection(String(localized: KiplessStrings.settingsAboutSection)) {
-                aboutSection
-            }
+            .padding(28)
         }
-        .padding(28)
-        .frame(width: 520, height: 330, alignment: .topLeading)
+        .scrollIndicators(.hidden)
+        .frame(width: 520, height: 500, alignment: .topLeading)
         .tint(KiplessTheme.accentColor)
         .onAppear { launchAtLogin.refresh() }
     }
@@ -77,6 +115,83 @@ struct SettingsView: View {
         }
         .padding(14)
         .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private var wakeModesSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .bottom, spacing: 8) {
+                Text(KiplessStrings.settingsModeColumnMode)
+                    .frame(width: settingsModeTitleWidth, alignment: .leading)
+
+                Text(KiplessStrings.settingsModeColumnIdleSleep)
+                    .frame(width: settingsModeColumnWidth)
+
+                Text(KiplessStrings.settingsModeColumnDisplaySleep)
+                    .frame(width: settingsModeColumnWidth)
+
+                Text(KiplessStrings.settingsModeColumnLidSleep)
+                    .frame(width: settingsModeColumnWidth)
+            }
+            .font(.system(size: 9, weight: .medium))
+            .foregroundStyle(.tertiary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 8)
+
+            Divider()
+
+            ForEach(Array(modeRows.enumerated()), id: \.element.id) { index, row in
+                if index > 0 {
+                    Divider()
+                }
+
+                HStack(alignment: .top, spacing: 8) {
+                    Text(row.mode.title)
+                        .font(.system(size: 10.5, weight: .semibold))
+                        .frame(width: settingsModeTitleWidth, alignment: .leading)
+
+                    statusCell(row.idleSleep)
+                    statusCell(row.displaySleep)
+                    statusCell(row.lidSleep)
+                }
+                .padding(.vertical, 8)
+            }
+        }
+        .padding(12)
+        .background(
+            Color.primary.opacity(0.045),
+            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+        )
+    }
+
+    private func statusCell(_ status: SettingsModeStatus) -> some View {
+        Text(status.icon)
+            .font(.system(size: 13))
+            .frame(width: settingsModeColumnWidth)
+            .accessibilityLabel(String(localized: status.accessibilityLabel))
+    }
+
+    private var modeRows: [SettingsModeRow] {
+        return [
+            SettingsModeRow(
+                mode: .system,
+                idleSleep: .blocked,
+                displaySleep: .allowed,
+                lidSleep: .allowed
+            ),
+            SettingsModeRow(
+                mode: .display,
+                idleSleep: .blocked,
+                displaySleep: .blocked,
+                lidSleep: .allowed
+            ),
+            SettingsModeRow(
+                mode: .closedLid,
+                idleSleep: .blocked,
+                displaySleep: .allowed,
+                lidSleep: .blocked
+            )
+        ]
     }
 
     private var aboutSection: some View {
