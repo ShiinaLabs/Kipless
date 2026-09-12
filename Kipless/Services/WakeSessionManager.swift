@@ -19,13 +19,22 @@ final class WakeSessionManager {
     /// Message for the last failed start, cleared on the next successful one.
     private(set) var errorMessage: String?
 
+    /// Set when a Closed Lid start failed because the privileged helper still
+    /// needs its Login Items approval. The Popover turns this into a dialog:
+    /// the failure needs an answer, not another line of status.
+    private(set) var lidApprovalIsRequired = false
+
     /// Re-stamped on every tick purely so views observing `remainingSeconds`
     /// re-render. It is never used to decide when a session ends.
     private(set) var now: Date
 
+    /// How long quitting waits for a Closed Lid transition to unwind.
+    static let defaultTerminationTimeout: Duration = .seconds(3)
+
     private let assertions: SleepAsserting
     private let lidSleepOverride: LidSleepOverrideClient
     private let dateProvider: () -> Date
+    private let terminationTimeout: Duration
     private var ticker: Task<Void, Never>?
     private var transitionTask: Task<Void, Never>?
     private var transitionID = 0
@@ -34,11 +43,13 @@ final class WakeSessionManager {
     init(
         assertions: SleepAsserting = SleepAssertionManager(),
         lidSleepOverride: LidSleepOverrideClient = PrivilegedHelperClient(),
-        dateProvider: @escaping () -> Date = Date.init
+        dateProvider: @escaping () -> Date = Date.init,
+        terminationTimeout: Duration = WakeSessionManager.defaultTerminationTimeout
     ) {
         self.assertions = assertions
         self.lidSleepOverride = lidSleepOverride
         self.dateProvider = dateProvider
+        self.terminationTimeout = terminationTimeout
         self.now = dateProvider()
     }
 
@@ -113,15 +124,33 @@ final class WakeSessionManager {
         stop()
 
         Task { @MainActor [weak self] in
-            if let transitionTask = self?.transitionTask {
-                await transitionTask.value
-            }
+            await self?.waitForTransitionBeforeTermination()
             completion()
+        }
+    }
+
+    /// Waits for the Closed Lid transition to unwind, but never longer than
+    /// `terminationTimeout`.
+    ///
+    /// The cap matters: this runs while AppKit is holding up termination, so
+    /// waiting forever means the app cannot be quit at all — it sits in the
+    /// event loop, unresponsive, until the system kills it.
+    private func waitForTransitionBeforeTermination() async {
+        let deadline = ContinuousClock.now.advanced(by: terminationTimeout)
+
+        while transitionTask != nil, ContinuousClock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(20))
         }
     }
 
     func dismissError() {
         errorMessage = nil
+    }
+
+    /// Called once the approval dialog has been shown, so it is asked once per
+    /// failed attempt rather than on every redraw.
+    func acknowledgeLidApprovalRequest() {
+        lidApprovalIsRequired = false
     }
 
     // MARK: - Expiry
@@ -155,6 +184,7 @@ final class WakeSessionManager {
         pendingTransitionID = id
         isTransitioning = true
         errorMessage = nil
+        lidApprovalIsRequired = false
 
         transitionTask = Task { @MainActor [weak self] in
             await self?.performClosedLidStart(duration: duration, transitionID: id)
@@ -204,7 +234,14 @@ final class WakeSessionManager {
             if assertionAcquired { assertions.release() }
 
             if self.transitionID == id {
-                errorMessage = error.localizedDescription
+                if let helperError = error as? PrivilegedHelperClientError,
+                   helperError.requiresUserApproval {
+                    // Approving the helper is the user's call, so ask with a
+                    // dialog and leave the panel's status row alone.
+                    lidApprovalIsRequired = true
+                } else {
+                    errorMessage = error.localizedDescription
+                }
             }
         }
 

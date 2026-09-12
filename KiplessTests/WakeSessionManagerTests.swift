@@ -127,6 +127,79 @@ final class WakeSessionManagerTests: XCTestCase {
         XCTAssertNil(manager.remainingSeconds)
     }
 
+    func testClosedLidApprovalFailureAsksForApprovalInsteadOfStarting() async {
+        let helper = FakeLidSleepOverrideClient(
+            error: PrivilegedHelperClientError.helperApprovalRequired,
+            approvalRequired: true
+        )
+        manager = WakeSessionManager(
+            assertions: assertions,
+            lidSleepOverride: helper,
+            dateProvider: { [clock] in clock.now }
+        )
+
+        manager.start(mode: .closedLid, duration: .hour1)
+        for _ in 0..<10 where manager.isTransitioning {
+            await Task.yield()
+        }
+
+        XCTAssertFalse(manager.isActive)
+        // Approving the helper is the user's call, so it is asked with a
+        // dialog; the panel's status row is left to actual failures.
+        XCTAssertNil(manager.errorMessage)
+        XCTAssertTrue(manager.lidApprovalIsRequired)
+
+        manager.acknowledgeLidApprovalRequest()
+        XCTAssertFalse(manager.lidApprovalIsRequired)
+    }
+
+    func testTerminationDoesNotWaitForeverForTheClosedLidRelease() async {
+        let helper = NeverReleasingLidSleepOverrideClient()
+        manager = WakeSessionManager(
+            assertions: assertions,
+            lidSleepOverride: helper,
+            dateProvider: { [clock] in clock.now },
+            terminationTimeout: .milliseconds(50)
+        )
+
+        manager.start(mode: .closedLid, duration: .hour1)
+        for _ in 0..<10 where manager.isTransitioning {
+            await Task.yield()
+        }
+        XCTAssertTrue(manager.isActive)
+
+        // The helper accepts the release and never answers. Quitting must still
+        // be allowed to proceed, otherwise the app is stuck in AppKit's modal
+        // terminate wait and cannot be quit.
+        let finished = expectation(description: "termination is allowed to proceed")
+        manager.prepareForTermination { finished.fulfill() }
+
+        await fulfillment(of: [finished], timeout: 1)
+    }
+
+    func testClosedLidHelperTimeoutLeavesNoStuckTransition() async {
+        let helper = FakeLidSleepOverrideClient(
+            error: PrivilegedHelperClientError.helperNotResponding
+        )
+        manager = WakeSessionManager(
+            assertions: assertions,
+            lidSleepOverride: helper,
+            dateProvider: { [clock] in clock.now }
+        )
+
+        manager.start(mode: .closedLid, duration: .hour1)
+        for _ in 0..<10 where manager.isTransitioning {
+            await Task.yield()
+        }
+
+        XCTAssertFalse(manager.isActive)
+        // A stalled helper must not leave the UI in the transitional state,
+        // where Start stays disabled and the countdown never moves.
+        XCTAssertFalse(manager.isTransitioning)
+        XCTAssertNotNil(manager.errorMessage)
+        XCTAssertFalse(manager.lidApprovalIsRequired)
+    }
+
     func testSuccessfulStartClearsAPreviousError() {
         assertions.errorToThrow = SleepAssertionError.creationFailed(mode: .system, code: -1)
         manager.start(mode: .system, duration: .minutes30)
@@ -202,4 +275,37 @@ final class TestClock {
     func advance(by seconds: TimeInterval) {
         offset += seconds
     }
+}
+
+private final class FakeLidSleepOverrideClient: @unchecked Sendable, LidSleepOverrideClient {
+    var error: Error?
+    var approvalRequired: Bool
+
+    init(error: Error? = nil, approvalRequired: Bool = false) {
+        self.error = error
+        self.approvalRequired = approvalRequired
+    }
+
+    func acquireLidSleepOverride() async throws {
+        if let error { throw error }
+    }
+
+    func releaseLidSleepOverride() async throws {}
+
+    func helperApprovalIsRequired() -> Bool { approvalRequired }
+
+    func invalidate() {}
+}
+
+private final class NeverReleasingLidSleepOverrideClient: @unchecked Sendable, LidSleepOverrideClient {
+    func acquireLidSleepOverride() async throws {}
+
+    func releaseLidSleepOverride() async throws {
+        // Models a helper that takes the release message and never answers.
+        try? await Task.sleep(for: .seconds(3600))
+    }
+
+    func helperApprovalIsRequired() -> Bool { false }
+
+    func invalidate() {}
 }

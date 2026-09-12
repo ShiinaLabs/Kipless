@@ -16,6 +16,10 @@ final class LocalizationTests: XCTestCase {
             LocalizedStringResource.errorAssertionCreation(0).key,
             LocalizedStringResource.menuStatusActive.key,
             LocalizedStringResource.menuStatusInactive.key,
+            LocalizedStringResource.permissionClosedLidApprovalDismiss.key,
+            LocalizedStringResource.permissionClosedLidApprovalMessage.key,
+            LocalizedStringResource.permissionClosedLidApprovalOpenSettings.key,
+            LocalizedStringResource.permissionClosedLidApprovalTitle.key,
             LocalizedStringResource.sessionActionStart.key,
             LocalizedStringResource.sessionActionStop.key,
             LocalizedStringResource.sessionCountdownHours(1).key,
@@ -76,6 +80,22 @@ final class LocalizationTests: XCTestCase {
         XCTAssertEqual(
             String(localized: LocalizedStringResource.sessionModeClosedLidTitle),
             "Closed Lid"
+        )
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidApprovalTitle),
+            "Allow Closed Lid"
+        )
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidApprovalOpenSettings),
+            "Open Login Items"
+        )
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidApprovalMessage),
+            "In System Settings › General › Login Items, turn on Kipless in the background apps list to use Closed Lid mode."
+        )
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidApprovalDismiss),
+            "Not Now"
         )
     }
 

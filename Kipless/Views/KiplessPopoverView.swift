@@ -17,6 +17,107 @@ enum KiplessSettingsOpener {
     }
 }
 
+@MainActor
+enum KiplessLoginItemsOpener {
+    typealias LaunchSystemSettings = @Sendable (
+        @escaping @Sendable (NSRunningApplication?) -> Void
+    ) -> Void
+    typealias OpenURL = @Sendable (URL) -> Bool
+    typealias Activate = @Sendable (NSRunningApplication) -> Void
+
+    private static let systemSettingsURL = URL(
+        fileURLWithPath: "/System/Applications/System Settings.app"
+    )
+    private static let loginItemsURL = URL(
+        string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
+    )!
+
+    static func openLoginItems() {
+        let systemSettingsURL = Self.systemSettingsURL
+
+        openLoginItems(
+            launchSystemSettings: { completion in
+                let configuration = NSWorkspace.OpenConfiguration()
+                configuration.activates = true
+                NSWorkspace.shared.openApplication(
+                    at: systemSettingsURL,
+                    configuration: configuration
+                ) { app, _ in
+                    DispatchQueue.main.async {
+                        completion(app)
+                    }
+                }
+            },
+            openURL: { NSWorkspace.shared.open($0) },
+            activate: { app in
+                app.activate(options: [.activateAllWindows])
+            }
+        )
+    }
+
+    static func openLoginItems(
+        launchSystemSettings: @escaping LaunchSystemSettings,
+        openURL: @escaping OpenURL,
+        activate: @escaping Activate
+    ) {
+        let loginItemsURL = Self.loginItemsURL
+
+        launchSystemSettings { app in
+            _ = openURL(loginItemsURL)
+            if let app {
+                activate(app)
+            }
+        }
+    }
+}
+
+/// The dialog for a Closed Lid start that is waiting on the privileged
+/// helper's Login Items approval.
+///
+/// It is a dialog rather than a row in the Popover because this failure needs
+/// an answer — the user either goes and approves the helper, or they do not.
+@MainActor
+enum ClosedLidApprovalAlert {
+    typealias RunAlert = @MainActor (String, String, String, String) -> Bool
+    typealias OpenLoginItems = @MainActor () -> Void
+
+    static func present() {
+        present(runAlert: runAlert, openLoginItems: KiplessLoginItemsOpener.openLoginItems)
+    }
+
+    /// `runAlert` receives the title, message, accept and dismiss titles, and
+    /// reports whether the user chose to open Login Items.
+    static func present(
+        runAlert: @escaping RunAlert,
+        openLoginItems: @escaping OpenLoginItems
+    ) {
+        let title = String(localized: LocalizedStringResource.permissionClosedLidApprovalTitle)
+        let message = String(localized: LocalizedStringResource.permissionClosedLidApprovalMessage)
+        let accept = String(localized: LocalizedStringResource.permissionClosedLidApprovalOpenSettings)
+        let dismiss = String(localized: LocalizedStringResource.permissionClosedLidApprovalDismiss)
+
+        guard runAlert(title, message, accept, dismiss) else { return }
+        openLoginItems()
+    }
+
+    private static func runAlert(
+        title: String,
+        message: String,
+        accept: String,
+        dismiss: String
+    ) -> Bool {
+        let alert = NSAlert()
+        alert.alertStyle = .informational
+        alert.messageText = title
+        alert.informativeText = message
+        alert.addButton(withTitle: accept)
+        alert.addButton(withTitle: dismiss)
+
+        NSApp.activate(ignoringOtherApps: true)
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+}
+
 fileprivate enum KiplessMotion {
     static func sessionState(reduceMotion: Bool) -> Animation {
         .easeInOut(duration: reduceMotion ? 0.18 : 0.2)
@@ -293,8 +394,13 @@ private final class KiplessSettingsWindowController: NSWindowController {
     static let shared = KiplessSettingsWindowController()
 
     private init() {
+        // Tall enough for every card, so nothing sits below the fold. Only a
+        // short screen can force scrolling, and that case keeps its indicator.
+        let height = SettingsWindowSizing.height(
+            visibleScreenHeight: NSScreen.main?.visibleFrame.height ?? 900
+        )
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 520, height: 500),
+            contentRect: NSRect(x: 0, y: 0, width: SettingsWindowSizing.width, height: height),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -303,6 +409,9 @@ private final class KiplessSettingsWindowController: NSWindowController {
         window.title = KiplessSettingsOpener.windowTitle
         window.isReleasedWhenClosed = false
         window.contentViewController = NSHostingController(rootView: SettingsView())
+        // A scroll container has no intrinsic height, so assigning it as the
+        // content view controller collapses the window; size it explicitly.
+        window.setContentSize(NSSize(width: SettingsWindowSizing.width, height: height))
         super.init(window: window)
     }
 
@@ -352,6 +461,14 @@ struct KiplessPopoverView: View {
                 .frame(height: KiplessLayout.footerHeight)
         }
         .frame(width: KiplessLayout.popoverWidth)
+        .onChange(of: manager.lidApprovalIsRequired) { _, isRequired in
+            guard isRequired else { return }
+
+            manager.acknowledgeLidApprovalRequest()
+            // Running a modal alert inside SwiftUI's update pass would nest
+            // run loops underneath it, so hand it to the next main-actor turn.
+            Task { @MainActor in ClosedLidApprovalAlert.present() }
+        }
     }
 
     // MARK: - Session control
@@ -557,6 +674,13 @@ struct KiplessPopoverView: View {
             } label: {
                 Text(LocalizedStringResource.settingsActionOpen)
                     .font(.system(size: 11))
+                    // An 11pt plain-styled label only hit-tests on its own
+                    // glyphs, which is a few points tall. Match the Quit
+                    // button's 20pt target so the entry is clickable without
+                    // aiming, while the drawing stays identical.
+                    .frame(height: 20)
+                    .padding(.horizontal, 2)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
