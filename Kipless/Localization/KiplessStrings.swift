@@ -116,6 +116,16 @@ enum KiplessStrings {
         defaultValue: "Session time remaining",
         comment: "Accessibility label for the session countdown."
     )
+    static let sessionIndefiniteIdle = LocalizedStringResource(
+        "session.indefinite.idle",
+        defaultValue: "Until stopped",
+        comment: "Status shown before an indefinite session starts."
+    )
+    static let sessionIndefiniteActive = LocalizedStringResource(
+        "session.indefinite.active",
+        defaultValue: "Keeping awake",
+        comment: "Status shown while an indefinite session is active."
+    )
     static func countdownHours(_ hours: Int) -> LocalizedStringResource {
         LocalizedStringResource(
             "session.countdown.hours",
@@ -221,6 +231,8 @@ enum KiplessStrings {
         sessionStart,
         sessionStop,
         sessionTimeRemaining,
+        sessionIndefiniteIdle,
+        sessionIndefiniteActive,
         durationMinutes15,
         durationMinutes30,
         durationHour1,

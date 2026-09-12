@@ -17,6 +17,261 @@ enum KiplessSettingsOpener {
     }
 }
 
+fileprivate enum KiplessMotion {
+    static func sessionState(reduceMotion: Bool) -> Animation {
+        .easeInOut(duration: reduceMotion ? 0.18 : 0.2)
+    }
+
+    static func presentation(reduceMotion: Bool) -> Animation {
+        .easeInOut(duration: reduceMotion ? 0.18 : 0.26)
+    }
+}
+
+private struct WakeControlPanel: View {
+    let presentation: WakeControlPresentation
+    let timeText: String
+    let ringProgress: Double
+    let isActive: Bool
+    let accent: Color
+    let action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            switch presentation.layout {
+            case .timed:
+                TimedControlView(
+                    timeText: timeText,
+                    ringProgress: ringProgress,
+                    isActive: isActive,
+                    accent: accent,
+                    action: action
+                )
+                .transition(presentationTransition)
+            case .indefinite:
+                IndefiniteControlView(
+                    isActive: isActive,
+                    accent: accent,
+                    action: action
+                )
+                .transition(presentationTransition)
+            }
+        }
+        .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
+        .animation(
+            KiplessMotion.presentation(reduceMotion: reduceMotion),
+            value: presentation.layout
+        )
+    }
+
+    private var presentationTransition: AnyTransition {
+        guard !reduceMotion else { return .opacity }
+
+        return .asymmetric(
+            insertion: .opacity.combined(with: .scale(scale: 1.04)),
+            removal: .opacity.combined(with: .scale(scale: 0.96))
+        )
+    }
+}
+
+private struct TimedControlView: View {
+    let timeText: String
+    let ringProgress: Double
+    let isActive: Bool
+    let accent: Color
+    let action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.primary.opacity(0.1), lineWidth: 6)
+
+            if ringProgress > 0 {
+                Circle()
+                    .trim(from: 0, to: 0.985 * ringProgress)
+                    .stroke(accent, style: StrokeStyle(lineWidth: 6, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(
+                        reduceMotion ? nil : .linear(duration: 0.9),
+                        value: ringProgress
+                    )
+            }
+
+            VStack(spacing: 8) {
+                Text(timeText)
+                    .font(.system(size: 24, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .kerning(-1.2)
+
+                SessionActionButton(isActive: isActive, action: action)
+            }
+        }
+        .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
+    }
+}
+
+private struct IndefiniteParticleTrail: View {
+    let accent: Color
+    let isActive: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Group {
+            if isActive {
+                if reduceMotion {
+                    Capsule()
+                        .fill(accent.opacity(0.05))
+                        .frame(width: 104, height: 16)
+                        .blur(radius: 8)
+                } else {
+                    TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                        Canvas { context, size in
+                            let horizontalInset: CGFloat = 4
+                            let verticalInset: CGFloat = 10
+                            let trailWidth = size.width * 0.62
+                            let usableWidth = max(trailWidth - (horizontalInset * 2), 0)
+                            let usableHeight = max(size.height - (verticalInset * 2), 0)
+                            let verticalOffset = IndefiniteControlLayout.compact.particleVerticalOffset
+
+                            for particle in IndefiniteParticleMotion.particles(
+                                at: timeline.date.timeIntervalSinceReferenceDate
+                            ) {
+                                let thickness = CGFloat(particle.thickness)
+                                let length = thickness * 3.0
+                                let center = CGPoint(
+                                    x: horizontalInset + CGFloat(particle.progress) * usableWidth,
+                                    y: verticalInset + verticalOffset
+                                        + CGFloat(particle.verticalPosition) * usableHeight
+                                )
+                                let rect = CGRect(
+                                    x: center.x - (length / 2),
+                                    y: center.y - (thickness / 2),
+                                    width: length,
+                                    height: thickness
+                                )
+
+                                context.fill(
+                                    Path(roundedRect: rect, cornerRadius: thickness / 2),
+                                    with: .color(accent.opacity(particle.opacity))
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .frame(width: KiplessLayout.timerDiameter, height: IndefiniteControlLayout.compact.symbolAreaHeight)
+        .allowsHitTesting(false)
+    }
+}
+
+private struct IndefiniteControlView: View {
+    let isActive: Bool
+    let accent: Color
+    let action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let layout = IndefiniteControlLayout.compact
+
+        VStack(spacing: layout.verticalSpacing) {
+            ZStack {
+                IndefiniteParticleTrail(accent: accent, isActive: isActive)
+
+                Text("∞")
+                    .font(.system(size: layout.infinityFontSize, weight: .light, design: .rounded))
+                    .foregroundStyle(isActive ? accent : .primary)
+                    .kerning(-3)
+            }
+            .frame(width: KiplessLayout.timerDiameter, height: layout.symbolAreaHeight)
+
+            switch layout.actionPlacement {
+            case .inline:
+                HStack(spacing: layout.statusActionSpacing) {
+                    Text(
+                        String(
+                            localized: isActive
+                                ? KiplessStrings.sessionIndefiniteActive
+                                : KiplessStrings.sessionIndefiniteIdle
+                        )
+                    )
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .id(isActive)
+                    .transition(
+                        reduceMotion
+                            ? .opacity
+                            : .opacity.combined(with: .scale(scale: 0.96))
+                    )
+
+                    SessionActionButton(isActive: isActive, action: action)
+                }
+            }
+        }
+        .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
+        .animation(
+            KiplessMotion.sessionState(reduceMotion: reduceMotion),
+            value: isActive
+        )
+    }
+}
+
+private struct SessionActionButton: View {
+    let isActive: Bool
+    let action: () -> Void
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                if isActive {
+                    Image(systemName: "stop.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .transition(iconTransition)
+                } else {
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 10, weight: .bold))
+                        .transition(iconTransition)
+                }
+            }
+            .frame(width: 30, height: 30)
+            .background(Color.primary.opacity(0.06), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.secondary)
+        .animation(
+            KiplessMotion.sessionState(reduceMotion: reduceMotion),
+            value: isActive
+        )
+        .accessibilityLabel(
+            String(
+                localized: isActive
+                    ? KiplessStrings.sessionStop
+                    : KiplessStrings.sessionStart
+            )
+        )
+        .help(
+            String(
+                localized: isActive
+                    ? KiplessStrings.sessionStop
+                    : KiplessStrings.sessionStart
+            )
+        )
+    }
+
+    private var iconTransition: AnyTransition {
+        reduceMotion
+            ? .opacity
+            : .opacity.combined(with: .scale(scale: 0.75))
+    }
+}
+
 @MainActor
 private final class KiplessSettingsWindowController: NSWindowController {
     static let shared = KiplessSettingsWindowController()
@@ -67,7 +322,7 @@ struct KiplessPopoverView: View {
             }
 
             HStack(spacing: 0) {
-                timerPanel
+                sessionControlPanel
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 Divider()
@@ -84,49 +339,31 @@ struct KiplessPopoverView: View {
         .frame(width: KiplessLayout.popoverWidth)
     }
 
-    // MARK: - Quiet Ring
+    // MARK: - Session control
 
-    private var timerPanel: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.primary.opacity(0.1), lineWidth: 6)
-
-            if ringProgress > 0 {
-                Circle()
-                    .trim(from: 0, to: 0.985 * ringProgress)
-                    .stroke(quietAccent, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-            }
-
-            VStack(spacing: 8) {
-                Text(timeText)
-                    .font(.system(size: 24, weight: .medium, design: .rounded))
-                    .monospacedDigit()
-                    .kerning(-1.2)
-
-                Button(action: toggleSession) {
-                    Image(systemName: manager.isActive ? "stop.fill" : "play.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .frame(width: 30, height: 30)
-                        .background(Color.primary.opacity(0.06), in: Circle())
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                .accessibilityLabel(
-                    manager.isActive
-                        ? String(localized: KiplessStrings.sessionStop)
-                        : String(localized: KiplessStrings.sessionStart)
-                )
-                .help(
-                    manager.isActive
-                        ? String(localized: KiplessStrings.sessionStop)
-                        : String(localized: KiplessStrings.sessionStart)
-                )
-            }
-        }
-        .frame(width: KiplessLayout.timerDiameter, height: KiplessLayout.timerDiameter)
+    private var sessionControlPanel: some View {
+        WakeControlPanel(
+            presentation: WakeControlPresentation(duration: duration, isActive: manager.isActive),
+            timeText: timeText,
+            ringProgress: ringProgress,
+            isActive: manager.isActive,
+            accent: quietAccent,
+            action: toggleSession
+        )
         .accessibilityElement(children: .contain)
-        .accessibilityLabel(String(localized: KiplessStrings.sessionTimeRemaining))
+        .accessibilityLabel(sessionControlAccessibilityLabel)
+    }
+
+    private var sessionControlAccessibilityLabel: String {
+        if duration == .indefinite {
+            return String(
+                localized: manager.isActive
+                    ? KiplessStrings.sessionIndefiniteActive
+                    : KiplessStrings.sessionIndefiniteIdle
+            )
+        }
+
+        return String(localized: KiplessStrings.sessionTimeRemaining)
     }
 
     private var optionsPanel: some View {
@@ -172,6 +409,8 @@ struct KiplessPopoverView: View {
                 .disabled(manager.isActive)
             }
             .frame(height: KiplessLayout.durationRowHeight)
+            .opacity(manager.isActive ? 0.46 : 1)
+            .animation(.easeInOut(duration: 0.2), value: manager.isActive)
         }
         .padding(.horizontal, KiplessLayout.optionsHorizontalPadding)
         .padding(.vertical, KiplessLayout.optionsVerticalPadding)
@@ -203,6 +442,7 @@ struct KiplessPopoverView: View {
         .buttonStyle(.plain)
         .disabled(manager.isActive)
         .opacity(manager.isActive ? 0.46 : 1)
+        .animation(.easeInOut(duration: 0.2), value: manager.isActive)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(candidate.title)
         .accessibilityValue(candidate.subtitle)
@@ -231,7 +471,7 @@ struct KiplessPopoverView: View {
 
     private var timeText: String {
         guard let seconds = manager.remainingSeconds else {
-            return manager.isActive ? "∞" : durationText
+            return durationText
         }
 
         let minutes = seconds / 60

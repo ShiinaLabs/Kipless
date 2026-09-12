@@ -26,4 +26,15 @@ final class LocalizationTests: XCTestCase {
             "Your Mac stays awake in both options."
         )
     }
+
+    func testIndefinitePresentationCopyHasEnglishFallbackValues() {
+        XCTAssertEqual(
+            String(localized: KiplessStrings.sessionIndefiniteIdle),
+            "Until stopped"
+        )
+        XCTAssertEqual(
+            String(localized: KiplessStrings.sessionIndefiniteActive),
+            "Keeping awake"
+        )
+    }
 }

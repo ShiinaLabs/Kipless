@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "∞" : {
+
+    },
     "app.action.quit" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -195,6 +198,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Duration"
+          }
+        }
+      }
+    },
+    "session.indefinite.active" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keeping awake"
+          }
+        }
+      }
+    },
+    "session.indefinite.idle" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until stopped"
           }
         }
       }
