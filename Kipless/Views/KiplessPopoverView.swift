@@ -8,7 +8,7 @@ enum KiplessTheme {
 
 enum KiplessSettingsOpener {
     static var windowTitle: String {
-        String(localized: KiplessStrings.settingsWindowTitle)
+        String(localized: LocalizedStringResource.settingsWindowTitle)
     }
 
     @MainActor
@@ -205,8 +205,8 @@ private struct IndefiniteControlView: View {
                     Text(
                         String(
                             localized: isActive
-                                ? KiplessStrings.sessionIndefiniteActive
-                                : KiplessStrings.sessionIndefiniteIdle
+                                ? LocalizedStringResource.sessionIndefiniteActive
+                                : LocalizedStringResource.sessionIndefiniteIdle
                         )
                     )
                     .font(.system(size: 11))
@@ -268,15 +268,15 @@ private struct SessionActionButton: View {
         .accessibilityLabel(
             String(
                 localized: isActive
-                    ? KiplessStrings.sessionStop
-                    : KiplessStrings.sessionStart
+                    ? LocalizedStringResource.sessionActionStop
+                    : LocalizedStringResource.sessionActionStart
             )
         )
         .help(
             String(
                 localized: isActive
-                    ? KiplessStrings.sessionStop
-                    : KiplessStrings.sessionStart
+                    ? LocalizedStringResource.sessionActionStop
+                    : LocalizedStringResource.sessionActionStart
             )
         )
     }
@@ -374,17 +374,17 @@ struct KiplessPopoverView: View {
         if duration == .indefinite {
             return String(
                 localized: manager.isActive
-                    ? KiplessStrings.sessionIndefiniteActive
-                    : KiplessStrings.sessionIndefiniteIdle
+                    ? LocalizedStringResource.sessionIndefiniteActive
+                    : LocalizedStringResource.sessionIndefiniteIdle
             )
         }
 
-        return String(localized: KiplessStrings.sessionTimeRemaining)
+        return String(localized: LocalizedStringResource.sessionTimeRemaining)
     }
 
     private var optionsPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(KiplessStrings.modeExplanation)
+            Text(LocalizedStringResource.sessionModeExplanation)
                 .font(.system(size: 8.5))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -405,7 +405,7 @@ struct KiplessPopoverView: View {
             Spacer(minLength: KiplessLayout.minimumContentGap)
 
             HStack(spacing: 5) {
-                Text(KiplessStrings.sessionDurationTitle)
+                Text(LocalizedStringResource.sessionDurationTitle)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -413,7 +413,7 @@ struct KiplessPopoverView: View {
 
                 Spacer(minLength: 0)
 
-                Picker(String(localized: KiplessStrings.sessionDurationTitle), selection: $duration) {
+                Picker(String(localized: LocalizedStringResource.sessionDurationTitle), selection: $duration) {
                     ForEach(WakeDuration.allCases) { duration in
                         Text(duration.title).tag(duration)
                     }
@@ -545,7 +545,7 @@ struct KiplessPopoverView: View {
                     .padding(3)
                     .background(Color.secondary.opacity(0.12), in: Circle())
 
-                Text(KiplessStrings.appName)
+                Text(LocalizedStringResource.appName)
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.secondary)
             }
@@ -555,12 +555,12 @@ struct KiplessPopoverView: View {
             Button {
                 KiplessSettingsOpener.open()
             } label: {
-                Text(KiplessStrings.settingsAction)
+                Text(LocalizedStringResource.settingsActionOpen)
                     .font(.system(size: 11))
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .help(String(localized: KiplessStrings.settingsAction))
+            .help(String(localized: LocalizedStringResource.settingsActionOpen))
 
             Button {
                 NSApplication.shared.terminate(nil)
@@ -571,8 +571,8 @@ struct KiplessPopoverView: View {
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
-            .accessibilityLabel(String(localized: KiplessStrings.quitAction))
-            .help(String(localized: KiplessStrings.quitHelp))
+            .accessibilityLabel(String(localized: LocalizedStringResource.appActionQuit))
+            .help(String(localized: LocalizedStringResource.appActionQuitHelp))
         }
         .padding(.horizontal, 18)
     }

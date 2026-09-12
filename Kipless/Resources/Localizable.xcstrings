@@ -5,7 +5,7 @@
       "shouldTranslate" : false
     },
     "app.action.quit" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16,7 +16,7 @@
       }
     },
     "app.action.quit.help" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -27,7 +27,7 @@
       }
     },
     "app.name" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -38,7 +38,7 @@
       }
     },
     "duration.hour1" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -49,7 +49,7 @@
       }
     },
     "duration.hour2" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -60,7 +60,7 @@
       }
     },
     "duration.indefinite" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -71,7 +71,7 @@
       }
     },
     "duration.minutes15" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -82,7 +82,7 @@
       }
     },
     "duration.minutes30" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -93,7 +93,7 @@
       }
     },
     "error.assertionCreation" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -104,7 +104,7 @@
       }
     },
     "menu.status.active" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -115,7 +115,7 @@
       }
     },
     "menu.status.inactive" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -126,7 +126,7 @@
       }
     },
     "session.action.start" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -137,7 +137,7 @@
       }
     },
     "session.action.stop" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -148,7 +148,7 @@
       }
     },
     "session.countdown.hours" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -159,7 +159,7 @@
       }
     },
     "session.countdown.hoursAndMinutes" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -170,7 +170,7 @@
       }
     },
     "session.countdown.lessThanMinute" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -181,7 +181,7 @@
       }
     },
     "session.countdown.minutes" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -192,7 +192,7 @@
       }
     },
     "session.duration.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -203,7 +203,7 @@
       }
     },
     "session.indefinite.active" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -214,7 +214,7 @@
       }
     },
     "session.indefinite.idle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -225,7 +225,7 @@
       }
     },
     "session.mode.explanation" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -236,7 +236,7 @@
       }
     },
     "session.mode.system.subtitle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -247,7 +247,7 @@
       }
     },
     "session.mode.system.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -258,7 +258,7 @@
       }
     },
     "session.mode.display.subtitle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -269,7 +269,7 @@
       }
     },
     "session.mode.display.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -280,7 +280,7 @@
       }
     },
     "session.mode.closedLid.subtitle" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -291,7 +291,7 @@
       }
     },
     "session.mode.closedLid.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -302,7 +302,7 @@
       }
     },
     "session.timeRemaining" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -313,7 +313,7 @@
       }
     },
     "settings.about.description" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -324,7 +324,7 @@
       }
     },
     "settings.about.license" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -335,7 +335,7 @@
       }
     },
     "settings.about.privacy" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -346,7 +346,7 @@
       }
     },
     "settings.about.version" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -357,7 +357,7 @@
       }
     },
     "settings.action.open" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -368,7 +368,7 @@
       }
     },
     "settings.launchAtLogin.approval" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -379,7 +379,7 @@
       }
     },
     "settings.launchAtLogin.description" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -390,7 +390,7 @@
       }
     },
     "settings.launchAtLogin.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -401,7 +401,7 @@
       }
     },
     "settings.section.about" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -412,7 +412,7 @@
       }
     },
     "settings.section.general" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -423,7 +423,7 @@
       }
     },
     "settings.section.wakeModes" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -434,7 +434,7 @@
       }
     },
     "settings.modeTable.column.mode" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -445,7 +445,7 @@
       }
     },
     "settings.modeTable.column.idleSleep" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -456,7 +456,7 @@
       }
     },
     "settings.modeTable.column.displaySleep" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -467,7 +467,7 @@
       }
     },
     "settings.modeTable.column.lidSleep" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -478,7 +478,7 @@
       }
     },
     "settings.modeTable.status.allowed" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -489,7 +489,7 @@
       }
     },
     "settings.modeTable.status.blocked" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -500,7 +500,7 @@
       }
     },
     "settings.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -511,7 +511,7 @@
       }
     },
     "settings.window.title" : {
-      "extractionState" : "stale",
+      "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {

@@ -12,8 +12,8 @@ struct MenuBarLabel: View {
         Image(systemName: isActive ? "bolt.fill" : "bolt.slash")
             .accessibilityLabel(
                 isActive
-                    ? String(localized: KiplessStrings.menuStatusActive)
-                    : String(localized: KiplessStrings.menuStatusInactive)
+                    ? String(localized: LocalizedStringResource.menuStatusActive)
+                    : String(localized: LocalizedStringResource.menuStatusInactive)
             )
     }
 }

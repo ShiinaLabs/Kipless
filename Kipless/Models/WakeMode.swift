@@ -27,18 +27,18 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
     /// User-facing name for the mode picker.
     var title: String {
         switch self {
-        case .system: String(localized: KiplessStrings.modeSystemTitle)
-        case .display: String(localized: KiplessStrings.modeDisplayTitle)
-        case .closedLid: String(localized: KiplessStrings.modeClosedLidTitle)
+        case .system: String(localized: LocalizedStringResource.sessionModeSystemTitle)
+        case .display: String(localized: LocalizedStringResource.sessionModeDisplayTitle)
+        case .closedLid: String(localized: LocalizedStringResource.sessionModeClosedLidTitle)
         }
     }
 
     /// Explains the scope of the mode without exposing assertion details.
     var subtitle: String {
         switch self {
-        case .system: String(localized: KiplessStrings.modeSystemSubtitle)
-        case .display: String(localized: KiplessStrings.modeDisplaySubtitle)
-        case .closedLid: String(localized: KiplessStrings.modeClosedLidSubtitle)
+        case .system: String(localized: LocalizedStringResource.sessionModeSystemSubtitle)
+        case .display: String(localized: LocalizedStringResource.sessionModeDisplaySubtitle)
+        case .closedLid: String(localized: LocalizedStringResource.sessionModeClosedLidSubtitle)
         }
     }
 

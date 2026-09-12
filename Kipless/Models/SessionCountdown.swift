@@ -9,14 +9,14 @@ enum SessionCountdown {
             let hours = seconds / 3600
             let minutes = (seconds % 3600) / 60
             return minutes == 0
-                ? String(localized: KiplessStrings.countdownHours(hours))
-                : String(localized: KiplessStrings.countdownHoursAndMinutes(hours, minutes))
+                ? String(localized: LocalizedStringResource.sessionCountdownHours(hours))
+                : String(localized: LocalizedStringResource.sessionCountdownHoursAndMinutes(hours, minutes))
         }
 
         if seconds >= 60 {
-            return String(localized: KiplessStrings.countdownMinutes(seconds / 60))
+            return String(localized: LocalizedStringResource.sessionCountdownMinutes(seconds / 60))
         }
 
-        return String(localized: KiplessStrings.countdownLessThanMinute)
+        return String(localized: LocalizedStringResource.sessionCountdownLessThanMinute)
     }
 }

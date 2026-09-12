@@ -2,11 +2,11 @@ import SwiftUI
 
 enum SettingsCopy {
     static var launchAtLoginDescription: String {
-        String(localized: KiplessStrings.settingsLaunchAtLoginDescription)
+        String(localized: LocalizedStringResource.settingsLaunchAtLoginDescription)
     }
 
     static var aboutDescription: String {
-        String(localized: KiplessStrings.settingsAboutDescription)
+        String(localized: LocalizedStringResource.settingsAboutDescription)
     }
 }
 
@@ -32,8 +32,8 @@ private enum SettingsModeStatus {
 
     var accessibilityLabel: LocalizedStringResource {
         switch self {
-        case .blocked: KiplessStrings.settingsModeBlocked
-        case .allowed: KiplessStrings.settingsModeAllowed
+        case .blocked: LocalizedStringResource.settingsModeTableStatusBlocked
+        case .allowed: LocalizedStringResource.settingsModeTableStatusAllowed
         }
     }
 }
@@ -48,23 +48,23 @@ struct SettingsView: View {
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(KiplessStrings.settingsTitle)
+                Text(LocalizedStringResource.settingsTitle)
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
 
-                Text(KiplessStrings.appName)
+                Text(LocalizedStringResource.appName)
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
                     .padding(.top, 4)
 
-                settingsSection(String(localized: KiplessStrings.settingsGeneralSection)) {
+                settingsSection(String(localized: LocalizedStringResource.settingsSectionGeneral)) {
                     generalSection
                 }
 
-                settingsSection(String(localized: KiplessStrings.settingsWakeModesSection)) {
+                settingsSection(String(localized: LocalizedStringResource.settingsSectionWakeModes)) {
                     wakeModesSection
                 }
 
-                settingsSection(String(localized: KiplessStrings.settingsAboutSection)) {
+                settingsSection(String(localized: LocalizedStringResource.settingsSectionAbout)) {
                     aboutSection
                 }
             }
@@ -80,7 +80,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(KiplessStrings.settingsLaunchAtLoginTitle)
+                    Text(LocalizedStringResource.settingsLaunchAtLoginTitle)
                         .font(.system(size: 13, weight: .medium))
 
                     Text(SettingsCopy.launchAtLoginDescription)
@@ -91,7 +91,7 @@ struct SettingsView: View {
                 Spacer(minLength: 12)
 
                 Toggle(
-                    String(localized: KiplessStrings.settingsLaunchAtLoginTitle),
+                    String(localized: LocalizedStringResource.settingsLaunchAtLoginTitle),
                     isOn: Binding(
                         get: { launchAtLogin.isEnabled },
                         set: { launchAtLogin.setEnabled($0) }
@@ -103,7 +103,7 @@ struct SettingsView: View {
 
             if launchAtLogin.requiresApproval {
                 inlineMessage(
-                    String(localized: KiplessStrings.settingsLaunchAtLoginApproval),
+                    String(localized: LocalizedStringResource.settingsLaunchAtLoginApproval),
                     systemImage: "info.circle"
                 )
             }
@@ -120,16 +120,16 @@ struct SettingsView: View {
     private var wakeModesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .bottom, spacing: 8) {
-                Text(KiplessStrings.settingsModeColumnMode)
+                Text(LocalizedStringResource.settingsModeTableColumnMode)
                     .frame(width: settingsModeTitleWidth, alignment: .leading)
 
-                Text(KiplessStrings.settingsModeColumnIdleSleep)
+                Text(LocalizedStringResource.settingsModeTableColumnIdleSleep)
                     .frame(width: settingsModeColumnWidth)
 
-                Text(KiplessStrings.settingsModeColumnDisplaySleep)
+                Text(LocalizedStringResource.settingsModeTableColumnDisplaySleep)
                     .frame(width: settingsModeColumnWidth)
 
-                Text(KiplessStrings.settingsModeColumnLidSleep)
+                Text(LocalizedStringResource.settingsModeTableColumnLidSleep)
                     .frame(width: settingsModeColumnWidth)
             }
             .font(.system(size: 9, weight: .medium))
@@ -206,7 +206,7 @@ struct SettingsView: View {
                 Text(SettingsCopy.aboutDescription)
                     .font(.system(size: 12, weight: .medium))
 
-                Text(KiplessStrings.settingsPrivacyDescription)
+                Text(LocalizedStringResource.settingsAboutPrivacy)
                     .font(.system(size: 10))
                     .foregroundStyle(.secondary)
             }
@@ -214,11 +214,11 @@ struct SettingsView: View {
             Spacer(minLength: 12)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text(String(localized: KiplessStrings.settingsVersion(versionText)))
+                Text(String(localized: LocalizedStringResource.settingsAboutVersion(versionText)))
                     .font(.system(size: 10, weight: .medium))
                     .foregroundStyle(.secondary)
 
-                Text(KiplessStrings.settingsLicense)
+                Text(LocalizedStringResource.settingsAboutLicense)
                     .font(.system(size: 10))
                     .foregroundStyle(.tertiary)
             }

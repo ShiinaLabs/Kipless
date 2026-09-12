@@ -17,7 +17,7 @@ enum SleepAssertionError: LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case let .creationFailed(_, code):
-            String(localized: KiplessStrings.assertionCreationError(code: code))
+            String(localized: LocalizedStringResource.errorAssertionCreation(Int(code)))
         }
     }
 }
