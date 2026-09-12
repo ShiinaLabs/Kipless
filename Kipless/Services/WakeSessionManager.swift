@@ -24,18 +24,22 @@ final class WakeSessionManager {
     /// the failure needs an answer, not another line of status.
     private(set) var lidApprovalIsRequired = false
 
-    /// Re-stamped on every tick purely so views observing `remainingSeconds`
-    /// re-render. It is never used to decide when a session ends.
-    private(set) var now: Date
-
     /// How long quitting waits for a Closed Lid transition to unwind.
     static let defaultTerminationTimeout: Duration = .seconds(3)
+
+    /// Waits out the time left before a deadline is checked again.
+    ///
+    /// Injected so tests can drive expiry without waiting on a real clock. The
+    /// production value sleeps exactly the interval that is left instead of
+    /// polling it, so a running Session costs no wake-ups of its own.
+    typealias DeadlineSleeper = @MainActor (Duration) async -> Void
 
     private let assertions: SleepAsserting
     private let lidSleepOverride: LidSleepOverrideClient
     private let dateProvider: () -> Date
     private let terminationTimeout: Duration
-    private var ticker: Task<Void, Never>?
+    private let sleeper: DeadlineSleeper
+    private var expiryTask: Task<Void, Never>?
     private var transitionTask: Task<Void, Never>?
     private var transitionID = 0
     private var pendingTransitionID: Int?
@@ -44,13 +48,14 @@ final class WakeSessionManager {
         assertions: SleepAsserting = SleepAssertionManager(),
         lidSleepOverride: LidSleepOverrideClient = PrivilegedHelperClient(),
         dateProvider: @escaping () -> Date = Date.init,
-        terminationTimeout: Duration = WakeSessionManager.defaultTerminationTimeout
+        terminationTimeout: Duration = WakeSessionManager.defaultTerminationTimeout,
+        sleeper: @escaping DeadlineSleeper = { try? await Task.sleep(for: $0) }
     ) {
         self.assertions = assertions
         self.lidSleepOverride = lidSleepOverride
         self.dateProvider = dateProvider
         self.terminationTimeout = terminationTimeout
-        self.now = dateProvider()
+        self.sleeper = sleeper
     }
 
     var isActive: Bool { session != nil }
@@ -59,15 +64,6 @@ final class WakeSessionManager {
     /// A transition is kept separate from `isActive` so the UI cannot start a
     /// second Session while the previous helper operation is still unwinding.
     private(set) var isTransitioning = false
-
-    /// Seconds left in the session, or `nil` when it runs until stopped.
-    ///
-    /// Always derived from the absolute deadline and the current time, so it
-    /// stays correct across a stalled run loop or a Mac that slept.
-    var remainingSeconds: Int? {
-        guard let expiresAt = session?.expiresAt else { return nil }
-        return max(0, Int(expiresAt.timeIntervalSince(now).rounded(.up)))
-    }
 
     // MARK: - Session lifecycle
 
@@ -98,13 +94,13 @@ final class WakeSessionManager {
 
         session = WakeSession(mode: mode, startedAt: dateProvider(), duration: duration)
         errorMessage = nil
-        startTicking()
+        scheduleExpiry()
     }
 
     /// Ends the session and releases the assertion. Safe to call when inactive.
     func stop() {
         transitionID &+= 1
-        stopTicking()
+        cancelExpiry()
 
         let wasClosedLid = session?.mode == .closedLid
         session = nil
@@ -155,25 +151,56 @@ final class WakeSessionManager {
 
     // MARK: - Expiry
 
-    /// Ticks once a second. This only refreshes the derived UI state — the
-    /// deadline check reads the real clock, so the tick rate can never make a
-    /// session run long or short.
-    private func startTicking() {
-        stopTicking()
-        now = dateProvider()
+    /// Parks a wait on the Session's deadline.
+    ///
+    /// One wait, not a poll: nothing here measures elapsed time, so a Session
+    /// that runs for an hour is woken once. What ends the Session is still the
+    /// deadline compared against the real clock, so waking late — or being
+    /// woken early and having to wait again — can never make a Session run
+    /// long or short.
+    private func scheduleExpiry() {
+        cancelExpiry()
 
-        ticker = Task { [weak self] in
+        guard let session, let expiresAt = session.expiresAt else { return }
+        let identity = session.id
+
+        expiryTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(1))
-                guard let self, !Task.isCancelled else { return }
-                self.tick()
+                let remaining = expiresAt.timeIntervalSince(self.dateProvider())
+                if remaining <= 0 { break }
+                await self.sleeper(.seconds(remaining))
             }
+
+            guard !Task.isCancelled else { return }
+
+            // The Session this wait belongs to may have been stopped or
+            // replaced while it was parked, so identity is re-checked before
+            // this is allowed to end anything.
+            guard self.session?.id == identity else { return }
+            guard self.dateProvider() >= expiresAt else { return }
+
+            self.stop()
         }
     }
 
-    private func stopTicking() {
-        ticker?.cancel()
-        ticker = nil
+    private func cancelExpiry() {
+        expiryTask?.cancel()
+        expiryTask = nil
+    }
+
+    /// Re-checks the deadline after the Mac wakes from sleep.
+    ///
+    /// A wait parked on a deadline is not guaranteed to elapse on schedule
+    /// across a system sleep, so the deadline is re-read from the real clock as
+    /// soon as the machine is back. Without this, a Session whose deadline
+    /// passed while the Mac was asleep would keep its assertion until the wait
+    /// eventually fired.
+    func systemDidWake() {
+        guard session?.expiresAt != nil else { return }
+
+        scheduleExpiry()
     }
 
     // MARK: - Closed Lid backend
@@ -223,7 +250,7 @@ final class WakeSessionManager {
                 duration: duration
             )
             errorMessage = nil
-            startTicking()
+            scheduleExpiry()
         } catch {
             // Release is intentionally attempted even when acquire returned
             // an error: an XPC reply can be lost after the helper has already
@@ -276,18 +303,4 @@ final class WakeSessionManager {
         transitionTask = nil
         isTransitioning = false
     }
-
-    private func tick() {
-        now = dateProvider()
-
-        guard let expiresAt = session?.expiresAt else { return }
-        if now >= expiresAt {
-            stop()
-        }
-    }
-
-    #if DEBUG
-    /// Test seam: drives the tick without waiting on the clock.
-    func tickForTesting() { tick() }
-    #endif
 }

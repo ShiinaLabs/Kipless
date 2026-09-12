@@ -143,6 +143,7 @@ private struct WakeControlPanel: View {
     let ringProgress: Double
     let isActive: Bool
     let isActionDisabled: Bool
+    let isTrailAnimating: Bool
     let accent: Color
     let action: () -> Void
 
@@ -165,6 +166,7 @@ private struct WakeControlPanel: View {
                 IndefiniteControlView(
                     isActive: isActive,
                     isActionDisabled: isActionDisabled,
+                    isTrailAnimating: isTrailAnimating,
                     accent: accent,
                     action: action
                 )
@@ -196,22 +198,19 @@ private struct TimedControlView: View {
     let accent: Color
     let action: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     var body: some View {
         ZStack {
             Circle()
                 .stroke(Color.primary.opacity(0.1), lineWidth: 6)
 
             if ringProgress > 0 {
+                // No animation of its own: the ring is moved by whatever
+                // transaction the popover sets `ringProgress` in, which is what
+                // keeps a steady tick short and a catch-up bounded.
                 Circle()
                     .trim(from: 0, to: ringProgress)
                     .stroke(accent, style: StrokeStyle(lineWidth: 6, lineCap: .round))
                     .rotationEffect(.degrees(-90))
-                    .animation(
-                        reduceMotion ? nil : .linear(duration: 0.9),
-                        value: ringProgress
-                    )
             }
 
             VStack(spacing: 8) {
@@ -235,6 +234,12 @@ private struct IndefiniteParticleTrail: View {
     let accent: Color
     let isActive: Bool
 
+    /// The trail is the one thing in the popover that animates on its own, so
+    /// it is the one thing that has to be told to stop when the popover is
+    /// closed. Without this the timeline keeps driving a Canvas at 30 fps
+    /// inside a window nobody can see.
+    let isAnimating: Bool
+
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
@@ -246,7 +251,7 @@ private struct IndefiniteParticleTrail: View {
                         .frame(width: 104, height: 16)
                         .blur(radius: 8)
                 } else {
-                    TimelineView(.animation(minimumInterval: 1.0 / 30.0)) { timeline in
+                    TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: !isAnimating)) { timeline in
                         Canvas { context, size in
                             let horizontalInset: CGFloat = 4
                             let verticalInset: CGFloat = 10
@@ -290,6 +295,7 @@ private struct IndefiniteParticleTrail: View {
 private struct IndefiniteControlView: View {
     let isActive: Bool
     let isActionDisabled: Bool
+    let isTrailAnimating: Bool
     let accent: Color
     let action: () -> Void
 
@@ -300,7 +306,11 @@ private struct IndefiniteControlView: View {
 
         VStack(spacing: layout.verticalSpacing) {
             ZStack {
-                IndefiniteParticleTrail(accent: accent, isActive: isActive)
+                IndefiniteParticleTrail(
+                    accent: accent,
+                    isActive: isActive,
+                    isAnimating: isTrailAnimating
+                )
 
                 Text("∞")
                     .font(.system(size: layout.infinityFontSize, weight: .light, design: .rounded))
@@ -443,9 +453,23 @@ private final class KiplessSettingsWindowController: NSWindowController {
 /// The whole UI: what Kipless is doing, and the one control that changes it.
 struct KiplessPopoverView: View {
     @Environment(WakeSessionManager.self) private var manager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     @State private var mode: WakeMode = .system
     @State private var duration: WakeDuration = .minutes30
+
+    /// The countdown's own clock. It runs only while this popover is on screen
+    /// and there is something to count down to, so a Session that keeps the Mac
+    /// awake in the background costs the UI nothing.
+    @State private var presentation = SessionPresentationClock()
+
+    /// Where the ring is drawn, which is allowed to lag the truth so that
+    /// reopening the popover catches up rather than jumping.
+    @State private var displayedProgress: Double = 1
+
+    /// Which Session `displayedProgress` belongs to, so a position left over
+    /// from the last one can never be inherited by the next.
+    @State private var displayedSessionID: UUID?
 
     private var quietAccent: Color { KiplessTheme.accentColor }
 
@@ -470,6 +494,14 @@ struct KiplessPopoverView: View {
                 .frame(height: KiplessLayout.footerHeight)
         }
         .frame(width: KiplessLayout.popoverWidth)
+        .background(visibilityProbe)
+        .onChange(of: manager.session?.id) { _, _ in
+            updatePresentationClock()
+            syncDisplayedProgress()
+        }
+        .onChange(of: presentation.now) { _, _ in
+            syncDisplayedProgress()
+        }
         .onChange(of: manager.lidApprovalIsRequired) { _, isRequired in
             guard isRequired else { return }
 
@@ -486,9 +518,10 @@ struct KiplessPopoverView: View {
         WakeControlPanel(
             presentation: WakeControlPresentation(duration: duration, isActive: manager.isActive),
             timeText: timeText,
-            ringProgress: ringProgress,
+            ringProgress: displayedProgress,
             isActive: manager.isActive,
             isActionDisabled: manager.isTransitioning,
+            isTrailAnimating: presentation.isVisible,
             accent: quietAccent,
             action: toggleSession
         )
@@ -623,7 +656,10 @@ struct KiplessPopoverView: View {
     // MARK: - Pieces
 
     private var timeText: String {
-        guard let seconds = manager.remainingSeconds else {
+        guard let seconds = SessionRingProgress.remainingSeconds(
+            session: manager.session,
+            at: presentation.now
+        ) else {
             return durationText
         }
 
@@ -632,19 +668,72 @@ struct KiplessPopoverView: View {
         return "\(minutes):\(String(format: "%02d", remainder))"
     }
 
+    /// A zero-sized view whose only job is to say whether the popover's window
+    /// is on screen, which is what decides if anything is worth refreshing.
+    private var visibilityProbe: some View {
+        WindowVisibilityProbe { isVisible in
+            presentation.update(
+                isVisible: isVisible,
+                isCountingDown: manager.session?.expiresAt != nil
+            )
+        }
+        .frame(width: 0, height: 0)
+        .accessibilityHidden(true)
+    }
+
+    private func updatePresentationClock() {
+        presentation.update(
+            isVisible: presentation.isVisible,
+            isCountingDown: manager.session?.expiresAt != nil
+        )
+    }
+
+    /// Moves the ring to where the Session actually is.
+    ///
+    /// A Session that has just started is placed outright: there is no previous
+    /// position for it to travel from, and the last Session's progress must not
+    /// be inherited. Within one Session the ring interpolates instead, which is
+    /// what makes reopening the popover glide to the real value after a while
+    /// rather than jumping to it.
+    private func syncDisplayedProgress() {
+        let sessionID = manager.session?.id
+        let target = SessionRingProgress.progress(
+            session: manager.session,
+            at: presentation.now
+        )
+
+        guard let sessionID, sessionID == displayedSessionID else {
+            displayedSessionID = sessionID
+            setDisplayedProgress(target, animated: sessionID == nil)
+            return
+        }
+
+        setDisplayedProgress(target, animated: true)
+    }
+
+    private func setDisplayedProgress(_ target: Double, animated: Bool) {
+        guard abs(target - displayedProgress) > 0.0001 else { return }
+
+        guard animated,
+              let animation = SessionRingMotion.animation(
+                  reduceMotion: reduceMotion,
+                  delta: target - displayedProgress
+              )
+        else {
+            displayedProgress = target
+            return
+        }
+
+        withAnimation(animation) {
+            displayedProgress = target
+        }
+    }
+
     private var durationText: String {
         guard let seconds = duration.seconds else { return "∞" }
 
         let minutes = Int(seconds) / 60
         return "\(minutes):00"
-    }
-
-    private var ringProgress: Double {
-        guard let session = manager.session, let expiresAt = session.expiresAt else { return 1 }
-
-        let total = max(expiresAt.timeIntervalSince(session.startedAt), 1)
-        let remaining = Double(manager.remainingSeconds ?? 0)
-        return min(max(remaining / total, 0), 1)
     }
 
     private func toggleSession() {

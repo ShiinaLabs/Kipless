@@ -6,6 +6,23 @@ import AppKit
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var isTerminating = false
+    private var wakeObserver: NSObjectProtocol?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // A timed Session waits on its deadline with a single long sleep rather
+        // than a poll, and such a wait is not guaranteed to elapse on schedule
+        // across a system sleep. Re-checking on wake is what keeps the deadline
+        // — rather than the timer — in charge of when a Session ends.
+        wakeObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didWakeNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in
+                WakeSessionManager.shared.systemDidWake()
+            }
+        }
+    }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         // A second terminate request while the first is still unwinding must
@@ -20,6 +37,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        if let wakeObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(wakeObserver)
+        }
         WakeSessionManager.shared.stop()
     }
 }

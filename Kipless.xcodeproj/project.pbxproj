@@ -51,6 +51,8 @@
 		EFAFFD0615B32A77F03F85F9 /* KiplessLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60CF9728690B4A181A2F2FDB /* KiplessLayout.swift */; };
 		EFB5DCAFF7FEB8606C779ED0 /* SleepAssertionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */; };
 		F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */; };
+		DA245D43FED8D52288366CB6 /* SessionPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */; };
+		23D01EA069180CD70664DCB8 /* SessionPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -137,6 +139,8 @@
 		F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAssertionDriver.swift; sourceTree = "<group>"; };
 		FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarLabel.swift; sourceTree = "<group>"; };
 		FF2FC7682A09760357363FEA /* PMSetSleepOverrideDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PMSetSleepOverrideDriver.swift; sourceTree = "<group>"; };
+		0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentation.swift; sourceTree = "<group>"; };
+		1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentationTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -188,6 +192,7 @@
 				60CF9728690B4A181A2F2FDB /* KiplessLayout.swift */,
 				59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */,
 				FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */,
+				0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */,
 				1869A7F837FEDD728447129E /* SettingsView.swift */,
 			);
 			path = Views;
@@ -235,6 +240,7 @@
 				026D23B4D4F9606AC10C0727 /* PowerAssertionDriverTests.swift */,
 				33A28426B3CD2DFC0A371BAC /* PrivilegedHelperClientTests.swift */,
 				0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */,
+				1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */,
 				D87F788FB81C8C2BAB947607 /* SleepOverrideControllerTests.swift */,
 				6B56A1E68EE5D5C849BE8986 /* SleepOverrideSystemStateTests.swift */,
 				0F82EC647EC23A5207F5AC14 /* WakeSessionManagerTests.swift */,
@@ -446,6 +452,7 @@
 				69164C136FFAB14D6EB0D021 /* PowerAssertionDriverTests.swift in Sources */,
 				A4DCB2513B391EC5B856A704 /* PrivilegedHelperClientTests.swift in Sources */,
 				F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */,
+				23D01EA069180CD70664DCB8 /* SessionPresentationTests.swift in Sources */,
 				720D2BA24E17497B29642ED6 /* SleepOverrideControllerTests.swift in Sources */,
 				D954674367B27A8716F98A9F /* SleepOverrideSystemStateTests.swift in Sources */,
 				32BDB9E10D5157A503322CA0 /* WakeSessionManagerTests.swift in Sources */,
@@ -457,6 +464,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DA245D43FED8D52288366CB6 /* SessionPresentation.swift in Sources */,
 				64AE4051190C6640A5004229 /* AppDelegate.swift in Sources */,
 				8B8DF0155C75253563F99B7D /* KiplessApp.swift in Sources */,
 				EFAFFD0615B32A77F03F85F9 /* KiplessLayout.swift in Sources */,

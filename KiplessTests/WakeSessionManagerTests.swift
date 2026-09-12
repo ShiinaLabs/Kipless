@@ -5,15 +5,31 @@ import XCTest
 final class WakeSessionManagerTests: XCTestCase {
     private var clock = TestClock()
     private var assertions = MockSleepAssertionManager()
+    private var sleeper = GatedDeadlineSleeper()
     private var manager: WakeSessionManager!
 
-    override func setUp() {
-        super.setUp()
+    override func setUp() async throws {
+        try await super.setUp()
         clock = TestClock()
         assertions = MockSleepAssertionManager()
-        manager = WakeSessionManager(
+        sleeper = GatedDeadlineSleeper()
+        manager = makeManager()
+    }
+
+    /// A manager whose clock and deadline waits the test moves by hand, so no
+    /// case here waits on real time.
+    private func makeManager(
+        lidSleepOverride: LidSleepOverrideClient = PrivilegedHelperClient(),
+        terminationTimeout: Duration = WakeSessionManager.defaultTerminationTimeout
+    ) -> WakeSessionManager {
+        let sleeper = self.sleeper
+
+        return WakeSessionManager(
             assertions: assertions,
-            dateProvider: { [clock] in clock.now }
+            lidSleepOverride: lidSleepOverride,
+            dateProvider: { [clock] in clock.now },
+            terminationTimeout: terminationTimeout,
+            sleeper: { duration in await sleeper.sleep(for: duration) }
         )
     }
 
@@ -22,7 +38,7 @@ final class WakeSessionManagerTests: XCTestCase {
     func testStartsInactive() {
         XCTAssertFalse(manager.isActive)
         XCTAssertNil(manager.session)
-        XCTAssertNil(manager.remainingSeconds)
+        XCTAssertNil(remainingSeconds)
         XCTAssertEqual(assertions.releaseCount, 0)
     }
 
@@ -124,7 +140,7 @@ final class WakeSessionManagerTests: XCTestCase {
         XCTAssertFalse(manager.isActive)
         XCTAssertNil(manager.session)
         XCTAssertNotNil(manager.errorMessage)
-        XCTAssertNil(manager.remainingSeconds)
+        XCTAssertNil(remainingSeconds)
     }
 
     func testClosedLidApprovalFailureAsksForApprovalInsteadOfStarting() async {
@@ -132,11 +148,7 @@ final class WakeSessionManagerTests: XCTestCase {
             error: PrivilegedHelperClientError.helperApprovalRequired,
             approvalRequired: true
         )
-        manager = WakeSessionManager(
-            assertions: assertions,
-            lidSleepOverride: helper,
-            dateProvider: { [clock] in clock.now }
-        )
+        manager = makeManager(lidSleepOverride: helper)
 
         manager.start(mode: .closedLid, duration: .hour1)
         for _ in 0..<10 where manager.isTransitioning {
@@ -155,10 +167,8 @@ final class WakeSessionManagerTests: XCTestCase {
 
     func testTerminationDoesNotWaitForeverForTheClosedLidRelease() async {
         let helper = NeverReleasingLidSleepOverrideClient()
-        manager = WakeSessionManager(
-            assertions: assertions,
+        manager = makeManager(
             lidSleepOverride: helper,
-            dateProvider: { [clock] in clock.now },
             terminationTimeout: .milliseconds(50)
         )
 
@@ -181,11 +191,7 @@ final class WakeSessionManagerTests: XCTestCase {
         let helper = FakeLidSleepOverrideClient(
             error: PrivilegedHelperClientError.helperNotResponding
         )
-        manager = WakeSessionManager(
-            assertions: assertions,
-            lidSleepOverride: helper,
-            dateProvider: { [clock] in clock.now }
-        )
+        manager = makeManager(lidSleepOverride: helper)
 
         manager.start(mode: .closedLid, duration: .hour1)
         for _ in 0..<10 where manager.isTransitioning {
@@ -216,51 +222,255 @@ final class WakeSessionManagerTests: XCTestCase {
 
     func testRemainingTimeIsDerivedFromTheDeadline() {
         manager.start(mode: .system, duration: .minutes30)
-        XCTAssertEqual(manager.remainingSeconds, 30 * 60)
+
+        XCTAssertEqual(remainingSeconds, 30 * 60)
 
         // The value must come from the clock, not from decrementing a counter.
         clock.advance(by: 12 * 60)
-        manager.tickForTesting()
 
-        XCTAssertEqual(manager.remainingSeconds, 18 * 60)
+        XCTAssertEqual(remainingSeconds, 18 * 60)
     }
 
-    func testTimedSessionExpiresOnItsDeadline() {
-        manager.start(mode: .system, duration: .minutes15)
+    func testIndefiniteSessionHasNoDeadline() async {
+        manager.start(mode: .display, duration: .indefinite)
 
-        clock.advance(by: 14 * 60 + 59)
-        manager.tickForTesting()
-        XCTAssertTrue(manager.isActive, "must still be running one second before the deadline")
+        XCTAssertNil(manager.session?.expiresAt)
+        XCTAssertNil(remainingSeconds)
 
-        clock.advance(by: 1)
-        manager.tickForTesting()
+        clock.advance(by: 48 * 3600)
+        await settle()
 
-        XCTAssertFalse(manager.isActive)
-        XCTAssertFalse(assertions.isHolding, "expiry must release the assertion")
+        XCTAssertTrue(manager.isActive, "an indefinite session runs until stopped")
+        XCTAssertTrue(assertions.isHolding)
     }
 
-    func testExpiryDoesNotDependOnTickFrequency() {
-        manager.start(mode: .system, duration: .minutes15)
+    // MARK: - Expiry
 
-        // Sleep past the deadline in one jump, as a Mac waking from sleep would.
-        clock.advance(by: 6 * 3600)
-        manager.tickForTesting()
+    func testATimedSessionParksOneWaitOnItsWholeDeadline() async {
+        manager.start(mode: .system, duration: .minutes30)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
 
+        // One wait for the whole interval rather than a tick per second. This is
+        // the difference between a Session that costs nothing in the background
+        // and one that wakes the app up 86,400 times a day.
+        XCTAssertEqual(sleeper.requestedSeconds, [30 * 60])
+    }
+
+    func testAnIndefiniteSessionParksNoWaitAtAll() async {
+        manager.start(mode: .display, duration: .indefinite)
+        await settle()
+
+        XCTAssertEqual(sleeper.waits.count, 0)
+    }
+
+    func testStoppingCancelsTheParkedWait() async {
+        manager.start(mode: .system, duration: .minutes30)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        manager.stop()
+        await waitUntil("the parked wait is released") { self.sleeper.parkedCount == 0 }
+
+        clock.advance(by: 60 * 60)
+        sleeper.elapseEveryWait()
+        await settle()
+
+        XCTAssertEqual(sleeper.waits.count, 1, "a stopped Session must not park another wait")
         XCTAssertFalse(manager.isActive)
         XCTAssertFalse(assertions.isHolding)
     }
 
-    func testIndefiniteSessionHasNoDeadline() {
-        manager.start(mode: .display, duration: .indefinite)
+    func testTheDeadlineEndsTheSessionAndReleasesTheAssertion() async {
+        manager.start(mode: .system, duration: .minutes15)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
 
-        XCTAssertNil(manager.session?.expiresAt)
-        XCTAssertNil(manager.remainingSeconds)
+        clock.advance(by: 15 * 60)
+        sleeper.elapseWait(at: 0)
+        await waitUntil("the session ends at its deadline") { !self.manager.isActive }
 
-        clock.advance(by: 48 * 3600)
-        manager.tickForTesting()
+        XCTAssertNil(manager.session)
+        XCTAssertFalse(assertions.isHolding, "expiry must release the assertion")
+    }
 
-        XCTAssertTrue(manager.isActive, "an indefinite session runs until stopped")
+    func testWakingEarlyWaitsAgainForExactlyWhatIsLeft() async {
+        manager.start(mode: .system, duration: .minutes30)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        // A wait that returns before the deadline — a timer firing early, or a
+        // clock that moved — must not be mistaken for the deadline arriving.
+        clock.advance(by: 60)
+        sleeper.elapseWait(at: 0)
+        await waitUntil("the session parks a second wait") { self.sleeper.waits.count == 2 }
+
+        XCTAssertEqual(sleeper.requestedSeconds, [30 * 60, 29 * 60])
+        XCTAssertTrue(manager.isActive)
+    }
+
+    func testASessionThatExpiredWhileTheMacSleptEndsOnWake() async {
+        manager.start(mode: .system, duration: .hour1)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        // The wait is still parked, because nothing about the Mac sleeping makes
+        // a timer fire. Re-reading the deadline on wake is what ends it.
+        clock.advance(by: 3 * 3600)
+        XCTAssertTrue(manager.isActive)
+
+        manager.systemDidWake()
+        await waitUntil("the session ends once the Mac is back") { !self.manager.isActive }
+
+        XCTAssertFalse(assertions.isHolding)
+    }
+
+    func testAWakeBeforeTheDeadlineLeavesTheSessionRunning() async {
+        manager.start(mode: .system, duration: .hour1)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        clock.advance(by: 10 * 60)
+        manager.systemDidWake()
+        await waitUntil("the session parks a fresh wait") { self.sleeper.waits.count == 2 }
+
+        XCTAssertEqual(sleeper.requestedSeconds, [3600, 50 * 60])
+        XCTAssertTrue(manager.isActive)
+    }
+
+    func testWakingWhileInactiveParksNothing() async {
+        manager.systemDidWake()
+        await settle()
+
+        XCTAssertEqual(sleeper.waits.count, 0)
+    }
+
+    func testAReplacedSessionIsNotEndedByTheDeadlineItLeftBehind() async {
+        manager.start(mode: .system, duration: .minutes15)
+        await waitUntil("the first deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        clock.advance(by: 15 * 60)
+        manager.start(mode: .display, duration: .hour2)
+        await waitUntil("the replacement parks its own wait") { self.sleeper.waits.count == 2 }
+
+        // The first Session's wait is let go after its deadline has already
+        // passed. It must not take down the Session that replaced it.
+        sleeper.elapseEveryWait()
+        await settle()
+
+        XCTAssertEqual(manager.session?.mode, .display)
         XCTAssertTrue(assertions.isHolding)
+        XCTAssertEqual(assertions.maxHeldCount, 1)
+    }
+
+    func testStoppingAgainAfterExpiryIsHarmless() async {
+        manager.start(mode: .system, duration: .minutes15)
+        await waitUntil("the deadline wait is parked") { self.sleeper.waits.count == 1 }
+
+        clock.advance(by: 15 * 60)
+        sleeper.elapseWait(at: 0)
+        await waitUntil("the session ends at its deadline") { !self.manager.isActive }
+
+        manager.stop()
+        await settle()
+
+        XCTAssertEqual(assertions.maxHeldCount, 1)
+        XCTAssertFalse(assertions.isHolding)
+    }
+
+    // MARK: - Test helpers
+
+    private var remainingSeconds: Int? {
+        SessionRingProgress.remainingSeconds(session: manager.session, at: clock.now)
+    }
+
+    private func waitUntil(
+        _ description: String,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ condition: () -> Bool
+    ) async {
+        for _ in 0..<1_000 {
+            if condition() { return }
+            await Task.yield()
+        }
+
+        XCTFail("Timed out waiting until \(description).", file: file, line: line)
+    }
+
+    private func settle() async {
+        for _ in 0..<50 {
+            await Task.yield()
+        }
+    }
+}
+
+/// Drives the manager's deadline waits by hand.
+///
+/// The manager parks a single wait on a Session's deadline instead of polling
+/// it, so a case's job is to decide when that wait elapses — and to check that
+/// the wait asked for the whole remaining interval rather than a fixed tick.
+@MainActor
+final class GatedDeadlineSleeper {
+    /// One entry per wait the manager has parked, in the order it asked.
+    final class Wait {
+        fileprivate(set) var seconds: TimeInterval = 0
+        fileprivate var continuation: CheckedContinuation<Void, Never>?
+
+        fileprivate func release() {
+            guard let continuation else { return }
+            self.continuation = nil
+            continuation.resume()
+        }
+    }
+
+    private(set) var waits: [Wait] = []
+
+    /// What each wait asked for, in order.
+    var requestedSeconds: [TimeInterval] { waits.map(\.seconds) }
+
+    /// How many waits are parked right now.
+    var parkedCount: Int { waits.filter { $0.continuation != nil }.count }
+
+    func sleep(for duration: Duration) async {
+        let index = waits.count
+        let wait = Wait()
+        wait.seconds = Self.seconds(of: duration)
+        waits.append(wait)
+
+        await withTaskCancellationHandler {
+            await withCheckedContinuation { continuation in
+                if Task.isCancelled {
+                    continuation.resume()
+                } else {
+                    wait.continuation = continuation
+                }
+            }
+        } onCancel: {
+            // `Task.sleep` is what this stands in for, and it resumes when the
+            // manager cancels a wait it no longer needs.
+            Task { @MainActor [weak self] in
+                self?.waits[index].release()
+            }
+        }
+    }
+
+    /// Lets the wait at `index` elapse, as its deadline arriving would.
+    func elapseWait(at index: Int) {
+        guard waits.indices.contains(index) else {
+            XCTFail("No parked wait at index \(index).")
+            return
+        }
+
+        waits[index].release()
+    }
+
+    /// Lets every wait so far elapse.
+    func elapseEveryWait() {
+        for wait in waits {
+            wait.release()
+        }
+    }
+
+    private static func seconds(of duration: Duration) -> TimeInterval {
+        let components = duration.components
+
+        return TimeInterval(components.seconds)
+            + (TimeInterval(components.attoseconds) / 1e18)
     }
 }
 
