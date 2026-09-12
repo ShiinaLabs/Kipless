@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.kaoru.kipless.sleep-helper</string>
+	<string>com.kaoru.kipless.lidsleep</string>
 	<key>BundleProgram</key>
-	<string>Contents/Resources/KiplessSleepHelper</string>
+	<string>Contents/MacOS/KiplessSleepHelper</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>Contents/Resources/KiplessSleepHelper</string>
+		<string>Contents/MacOS/KiplessSleepHelper</string>
 	</array>
 	<key>MachServices</key>
 	<dict>
-		<key>com.kaoru.kipless.sleep-helper</key>
+		<key>com.kaoru.kipless.lidsleep</key>
 		<true/>
 	</dict>
 	<key>ProcessType</key>

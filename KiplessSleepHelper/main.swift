@@ -1,6 +1,6 @@
 import Foundation
 
-let listener = NSXPCListener(machServiceName: "com.kaoru.kipless.sleep-helper")
+let listener = NSXPCListener(machServiceName: "com.kaoru.kipless.lidsleep")
 let delegate = SleepHelperListener()
 listener.delegate = delegate
 listener.resume()

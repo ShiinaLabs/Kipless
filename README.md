@@ -56,14 +56,10 @@ open Kipless.xcodeproj
 Then build and run the `Kipless` scheme. On first launch a bolt appears in the
 menu bar.
 
-`Kipless.xcodeproj` is generated from `project.yml` by
-[XcodeGen](https://github.com/yonaskolb/XcodeGen) and checked in, so you only
-need XcodeGen if you change the project structure:
-
-```sh
-brew install xcodegen
-xcodegen generate
-```
+`Kipless.xcodeproj` is the native Xcode project and is maintained directly in
+Xcode. When adding a target, source file, resource, build phase or scheme,
+make the corresponding change in Xcode so the checked-in project remains the
+single source of truth.
 
 Run the tests with `⌘U` in Xcode, or:
 

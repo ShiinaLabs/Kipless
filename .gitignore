@@ -13,8 +13,7 @@ xcuserdata/
 .swiftpm/
 Package.resolved
 
-# XcodeGen output is committed, but its scratch dir is not
-# (Kipless.xcodeproj is checked in so contributors need no extra tooling)
+# Local Swift/Xcode tooling output
 .build/
 
 # macOS
@@ -24,3 +23,6 @@ Package.resolved
 *.dmg
 *.xcarchive
 export/
+
+# Coverage artifacts from instrumented test runs
+*.profraw

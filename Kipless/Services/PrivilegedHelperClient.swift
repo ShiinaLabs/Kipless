@@ -31,8 +31,8 @@ protocol LidSleepOverrideClient: AnyObject, Sendable {
 /// registers the bundled LaunchDaemon through SMAppService and connects to its
 /// fixed Mach service; it never accepts arbitrary commands or arguments.
 final class PrivilegedHelperClient: @unchecked Sendable {
-    private static let daemonPlistName = "com.kaoru.kipless.sleep-helper.plist"
-    private static let machServiceName = "com.kaoru.kipless.sleep-helper"
+    private static let daemonPlistName = "com.kaoru.kipless.lidsleep.plist"
+    private static let machServiceName = "com.kaoru.kipless.lidsleep"
 
     private let lock = NSLock()
     private var connection: NSXPCConnection?

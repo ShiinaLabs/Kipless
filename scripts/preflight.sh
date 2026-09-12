@@ -38,8 +38,8 @@ run_release_build() {
 
 run_release_bundle_checks() {
     local app_path="$DERIVED_DATA_PATH/Build/Products/Release/Kipless.app"
-    local helper_path="$app_path/Contents/Resources/KiplessSleepHelper"
-    local helper_plist="$app_path/Contents/Library/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist"
+    local helper_path="$app_path/Contents/MacOS/KiplessSleepHelper"
+    local helper_plist="$app_path/Contents/Library/LaunchDaemons/com.kaoru.kipless.lidsleep.plist"
 
     [[ -x "$helper_path" ]] || {
         printf 'Sleep helper is missing or not executable: %s\n' "$helper_path" >&2
@@ -50,9 +50,22 @@ run_release_bundle_checks() {
         return 1
     }
     plutil -lint "$helper_plist" >/dev/null
-    [[ "$(/usr/libexec/PlistBuddy -c 'Print :Label' "$helper_plist")" == 'com.kaoru.kipless.sleep-helper' ]] || return 1
-    [[ "$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$helper_plist")" == 'Contents/Resources/KiplessSleepHelper' ]] || return 1
-    [[ "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.sleep-helper' "$helper_plist")" == 'true' ]] || return 1
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :Label' "$helper_plist")" == 'com.kaoru.kipless.lidsleep' ]] || return 1
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$helper_plist")" == 'Contents/MacOS/KiplessSleepHelper' ]] || return 1
+
+    # The system derives a launch requirement for the daemon from the plist:
+    # signing identifier == the program's file name, plus the Developer ID team.
+    # A helper built with an embedded Info.plist (which renames the identifier)
+    # or signed ad-hoc fails it and is killed by the kernel on every launch.
+    [[ "$(codesign -dv --verbose=2 "$helper_path" 2>&1 | sed -n 's/^Identifier=//p')" == 'com.kaoru.kipless.lidsleep' ]] || {
+        printf 'Sleep helper signing identifier must be com.kaoru.kipless.lidsleep.\n' >&2
+        return 1
+    }
+    [[ "$(codesign -dv --verbose=2 "$helper_path" 2>&1 | sed -n 's/^TeamIdentifier=//p')" != 'not set' ]] || {
+        printf 'Sleep helper must be signed with a Developer ID team.\n' >&2
+        return 1
+    }
+    [[ "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.lidsleep' "$helper_plist")" == 'true' ]] || return 1
 }
 
 final_cleanup() {

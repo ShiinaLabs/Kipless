@@ -7,8 +7,8 @@ source "$SCRIPT_DIR/test-common.sh"
 
 APP_PATH="${KIPLESS_APP_PATH:-$DERIVED_DATA_PATH/Build/Products/Release/Kipless.app}"
 APP_EXECUTABLE="$APP_PATH/Contents/MacOS/Kipless"
-SLEEP_HELPER_PATH="$APP_PATH/Contents/Resources/KiplessSleepHelper"
-SLEEP_HELPER_PLIST="$APP_PATH/Contents/Library/LaunchDaemons/com.kaoru.kipless.sleep-helper.plist"
+SLEEP_HELPER_PATH="$APP_PATH/Contents/MacOS/KiplessSleepHelper"
+SLEEP_HELPER_PLIST="$APP_PATH/Contents/Library/LaunchDaemons/com.kaoru.kipless.lidsleep.plist"
 APP_PID=""
 TEST_SUCCEEDED=0
 
@@ -113,12 +113,12 @@ fi
 plutil -lint "$SLEEP_HELPER_PLIST" >/dev/null
 helper_label="$(/usr/libexec/PlistBuddy -c 'Print :Label' "$SLEEP_HELPER_PLIST")"
 helper_program="$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$SLEEP_HELPER_PLIST")"
-helper_mach_service="$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.sleep-helper' "$SLEEP_HELPER_PLIST")"
-[[ "$helper_label" == 'com.kaoru.kipless.sleep-helper' ]] || {
+helper_mach_service="$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.lidsleep' "$SLEEP_HELPER_PLIST")"
+[[ "$helper_label" == 'com.kaoru.kipless.lidsleep' ]] || {
     printf 'Unexpected sleep helper label: %s\n' "$helper_label" >&2
     exit 1
 }
-[[ "$helper_program" == 'Contents/Resources/KiplessSleepHelper' ]] || {
+[[ "$helper_program" == 'Contents/MacOS/KiplessSleepHelper' ]] || {
     printf 'Unexpected sleep helper program path: %s\n' "$helper_program" >&2
     exit 1
 }
@@ -127,8 +127,16 @@ helper_mach_service="$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru
     exit 1
 }
 
-printf '  ad-hoc code signature\n'
+printf '  signed app and helper with a Team ID\n'
 codesign --verify --deep --strict "$APP_PATH"
+# A daemon registered through SMAppService is only allowed to start when its
+# signature carries a Team ID; an ad-hoc signed helper is killed by the kernel
+# before main() runs, so fail the smoke test instead of shipping that.
+helper_team="$(codesign -dv --verbose=4 "$SLEEP_HELPER_PATH" 2>&1 | sed -n 's/^TeamIdentifier=//p')"
+[[ -n "$helper_team" && "$helper_team" != 'not set' ]] || {
+    printf 'Sleep helper has no Team ID (%s); launchd will refuse to run it.\n' "${helper_team:-none}" >&2
+    exit 1
+}
 
 if [[ -n "$(find_app_pid)" ]]; then
     printf 'A Kipless process is already running; refusing to attach smoke-test state.\n' >&2
