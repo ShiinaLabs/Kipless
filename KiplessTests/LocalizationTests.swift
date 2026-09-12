@@ -20,6 +20,12 @@ final class LocalizationTests: XCTestCase {
             LocalizedStringResource.permissionClosedLidApprovalMessage.key,
             LocalizedStringResource.permissionClosedLidApprovalOpenSettings.key,
             LocalizedStringResource.permissionClosedLidApprovalTitle.key,
+            LocalizedStringResource.permissionClosedLidErrorConnectionInvalidated.key,
+            LocalizedStringResource.permissionClosedLidErrorConnectionUnavailable.key,
+            LocalizedStringResource.permissionClosedLidErrorHelperInterface.key,
+            LocalizedStringResource.permissionClosedLidErrorHelperRejected.key,
+            LocalizedStringResource.permissionClosedLidErrorNotResponding.key,
+            LocalizedStringResource.permissionClosedLidErrorUnknownState(0).key,
             LocalizedStringResource.sessionActionStart.key,
             LocalizedStringResource.sessionActionStop.key,
             LocalizedStringResource.sessionCountdownHours(1).key,
@@ -97,6 +103,16 @@ final class LocalizationTests: XCTestCase {
             String(localized: LocalizedStringResource.permissionClosedLidApprovalDismiss),
             "Not Now"
         )
+        // The helper's failures are user-visible, so they live in the catalog
+        // rather than as literals in the client.
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidErrorNotResponding),
+            "The privileged helper did not respond, so Closed Lid could not start"
+        )
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.permissionClosedLidErrorUnknownState(7)),
+            "Helper returned an unknown SleepDisabled state (7)"
+        )
     }
 
     func testIndefinitePresentationCopyHasEnglishFallbackValues() {
@@ -108,5 +124,33 @@ final class LocalizationTests: XCTestCase {
             String(localized: LocalizedStringResource.sessionIndefiniteActive),
             "Keeping awake"
         )
+    }
+
+    /// The tests run with English forced by the scheme, so the shipped
+    /// translations are checked through their own bundles instead. A key whose
+    /// copy differs in every language keeps a missing or untranslated resource
+    /// from passing silently.
+    func testEveryShippedLocalizationResolvesItsOwnCopy() {
+        let sampleKey = "permission.closedLid.error.notResponding"
+        let english = Bundle.main.localizedString(forKey: sampleKey, value: nil, table: nil)
+        let shipped = ["de", "es", "fr", "it", "ja", "ko", "pt-BR", "zh-Hans", "zh-Hant"]
+
+        for language in shipped {
+            XCTAssertTrue(
+                Bundle.main.localizations.contains(language),
+                "\(language) is missing from the app bundle"
+            )
+
+            guard let path = Bundle.main.path(forResource: language, ofType: "lproj"),
+                  let bundle = Bundle(path: path)
+            else {
+                XCTFail("\(language).lproj could not be opened")
+                continue
+            }
+
+            let translated = bundle.localizedString(forKey: sampleKey, value: nil, table: nil)
+            XCTAssertFalse(translated.isEmpty, "\(language) has no value for \(sampleKey)")
+            XCTAssertNotEqual(translated, english, "\(language) fell back to English")
+        }
     }
 }

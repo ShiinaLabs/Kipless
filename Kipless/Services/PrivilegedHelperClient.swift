@@ -13,9 +13,10 @@ enum PrivilegedHelperClientError: LocalizedError, Sendable {
         case .helperApprovalRequired:
             String(localized: LocalizedStringResource.permissionClosedLidApprovalMessage)
         case .helperNotResponding:
-            "The privileged helper did not respond, so Closed Lid could not start"
+            String(localized: LocalizedStringResource.permissionClosedLidErrorNotResponding)
         case let .helperUnavailable(message), let .remoteFailure(message): message
-        case let .unknownState(code): "Helper returned an unknown SleepDisabled state (\(code))"
+        case let .unknownState(code):
+            String(localized: LocalizedStringResource.permissionClosedLidErrorUnknownState(code))
         }
     }
 
@@ -170,9 +171,12 @@ final class PrivilegedHelperClient: @unchecked Sendable {
         lock.unlock()
 
         connection?.invalidate()
-        failPendingRequests(
-            with: .remoteFailure("The privileged helper connection was invalidated")
-        )
+        failPendingRequests(with: .remoteFailure(Self.connectionInvalidatedMessage))
+    }
+
+    /// Shared by the invalidation paths so the copy lives in one place.
+    private static var connectionInvalidatedMessage: String {
+        String(localized: LocalizedStringResource.permissionClosedLidErrorConnectionInvalidated)
     }
 
     func helperApprovalIsRequired() -> Bool {
@@ -234,7 +238,10 @@ final class PrivilegedHelperClient: @unchecked Sendable {
             invoke(requestRemote) { success, message in
                 guard success else {
                     completion.fail(
-                        .remoteFailure(message ?? "The privileged helper rejected the operation")
+                        .remoteFailure(
+                            message
+                                ?? String(localized: LocalizedStringResource.permissionClosedLidErrorHelperRejected)
+                        )
                     )
                     return
                 }
@@ -285,7 +292,7 @@ final class PrivilegedHelperClient: @unchecked Sendable {
 
             guard !lifecycle.isInvalidated else {
                 throw PrivilegedHelperClientError.remoteFailure(
-                    "The privileged helper connection was invalidated"
+                    Self.connectionInvalidatedMessage
                 )
             }
 
@@ -296,7 +303,7 @@ final class PrivilegedHelperClient: @unchecked Sendable {
             guard let remote = proxy as? KiplessSleepHelperProtocol else {
                 connection.invalidate()
                 throw PrivilegedHelperClientError.helperUnavailable(
-                    "The privileged helper does not expose the expected interface"
+                    String(localized: LocalizedStringResource.permissionClosedLidErrorHelperInterface)
                 )
             }
 
@@ -314,7 +321,7 @@ final class PrivilegedHelperClient: @unchecked Sendable {
                 clearConnectionIfNeeded(connection)
                 connection.invalidate()
                 throw PrivilegedHelperClientError.remoteFailure(
-                    "The privileged helper connection was invalidated"
+                    Self.connectionInvalidatedMessage
                 )
             }
             return remote
@@ -335,9 +342,7 @@ final class PrivilegedHelperClient: @unchecked Sendable {
         remoteObject = injectedRemote
         lock.unlock()
 
-        failPendingRequests(
-            with: .remoteFailure("The privileged helper connection was invalidated")
-        )
+        failPendingRequests(with: .remoteFailure(Self.connectionInvalidatedMessage))
     }
 
     private func remoteProxy(
@@ -353,7 +358,7 @@ final class PrivilegedHelperClient: @unchecked Sendable {
         guard let connection else {
             errorHandler(
                 PrivilegedHelperClientError.remoteFailure(
-                    "The privileged helper connection is unavailable"
+                    String(localized: LocalizedStringResource.permissionClosedLidErrorConnectionUnavailable)
                 )
             )
             return nil
