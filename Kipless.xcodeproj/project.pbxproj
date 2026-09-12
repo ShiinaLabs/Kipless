@@ -659,6 +659,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kaoru.kipless.lidsleep";
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -675,6 +676,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kaoru.kipless.lidsleep";
 				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};
