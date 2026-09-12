@@ -17,6 +17,15 @@ enum KiplessSettingsOpener {
     }
 }
 
+enum KiplessDonationOpener {
+    private static let url = URL(string: "https://shiinalabs.com/donate/")!
+
+    @MainActor
+    static func open() {
+        NSWorkspace.shared.open(url)
+    }
+}
+
 @MainActor
 enum KiplessLoginItemsOpener {
     typealias LaunchSystemSettings = @Sendable (
@@ -671,23 +680,47 @@ struct KiplessPopoverView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Button {
+                KiplessDonationOpener.open()
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 8, weight: .semibold))
+                    Text(LocalizedStringResource.supportActionDonate)
+                        .font(.system(size: 9, weight: .medium))
+                }
+                .foregroundStyle(Color(red: 0.46, green: 0.31, blue: 0.70))
+                .frame(height: 20)
+                .padding(.horizontal, 7)
+                .background(
+                    Color(red: 0.46, green: 0.31, blue: 0.70).opacity(0.13),
+                    in: Capsule()
+                )
+                .overlay {
+                    Capsule()
+                        .stroke(
+                            Color(red: 0.46, green: 0.31, blue: 0.70).opacity(0.30),
+                            lineWidth: 0.75
+                        )
+                }
+                .contentShape(Capsule())
+            }
+            .buttonStyle(.plain)
+            .help(String(localized: LocalizedStringResource.supportActionDonate))
+
             Spacer(minLength: 0)
 
             Button {
                 KiplessSettingsOpener.open()
             } label: {
-                Text(LocalizedStringResource.settingsActionOpen)
-                    .font(.system(size: 11))
-                    // An 11pt plain-styled label only hit-tests on its own
-                    // glyphs, which is a few points tall. Match the Quit
-                    // button's 20pt target so the entry is clickable without
-                    // aiming, while the drawing stays identical.
-                    .frame(height: 20)
-                    .padding(.horizontal, 2)
+                Image(systemName: "gearshape")
+                    .font(.system(size: 11, weight: .medium))
+                    .frame(width: 28, height: 28)
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
+            .accessibilityLabel(String(localized: LocalizedStringResource.settingsActionOpen))
             .help(String(localized: LocalizedStringResource.settingsActionOpen))
 
             Button {
@@ -695,7 +728,8 @@ struct KiplessPopoverView: View {
             } label: {
                 Image(systemName: "power")
                     .font(.system(size: 11, weight: .medium))
-                    .frame(width: 20, height: 20)
+                    .frame(width: 28, height: 28)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .foregroundStyle(.secondary)
