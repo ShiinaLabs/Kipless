@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 enum SettingsCopy {
@@ -7,6 +8,14 @@ enum SettingsCopy {
 
     static var aboutDescription: String {
         String(localized: LocalizedStringResource.settingsAboutDescription)
+    }
+
+    static var closedLidApprovalTitle: String {
+        String(localized: LocalizedStringResource.permissionClosedLidApprovalTitle)
+    }
+
+    static var closedLidApprovalMessage: String {
+        String(localized: LocalizedStringResource.permissionClosedLidApprovalMessage)
     }
 }
 
@@ -41,38 +50,80 @@ private enum SettingsModeStatus {
 private let settingsModeColumnWidth: CGFloat = 72
 private let settingsModeTitleWidth: CGFloat = 184
 
-/// A compact, single-column settings window for the small v1 surface area.
+/// Window metrics for the Settings window.
+///
+/// The window is sized to the cards rather than the other way round: a fixed
+/// height pushed whole cards below the fold behind an indicator-less scroll
+/// view, so nothing hinted that more content existed.
+enum SettingsWindowSizing {
+    static let width: CGFloat = 520
+    static let minimumHeight: CGFloat = 360
+    static let screenMargin: CGFloat = 120
+
+    /// Shows every card without scrolling, capped so the window still fits on
+    /// a short screen.
+    @MainActor
+    static func height(visibleScreenHeight: CGFloat) -> CGFloat {
+        let cap = max(minimumHeight, visibleScreenHeight - screenMargin)
+        return min(idealContentHeight, cap)
+    }
+
+    /// The cards' natural height at `width`, measured from the content itself
+    /// so adding a card grows the window instead of hiding the last one.
+    @MainActor
+    static var idealContentHeight: CGFloat {
+        let host = NSHostingView(rootView: SettingsContentView())
+        host.frame = NSRect(x: 0, y: 0, width: width, height: 0)
+        host.layoutSubtreeIfNeeded()
+        return host.fittingSize.height
+    }
+}
+
+/// The scroll container. It only scrolls when the screen is too short for the
+/// cards, and its indicator stays visible so that case is discoverable.
 struct SettingsView: View {
+    var body: some View {
+        ScrollView(.vertical) {
+            SettingsContentView()
+        }
+        .scrollIndicators(.visible)
+        .frame(width: SettingsWindowSizing.width)
+        .tint(KiplessTheme.accentColor)
+    }
+}
+
+/// The cards themselves, kept out of the scroll container so their natural
+/// height can be measured for window sizing.
+struct SettingsContentView: View {
     @State private var launchAtLogin = LaunchAtLoginService()
 
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(LocalizedStringResource.settingsTitle)
-                    .font(.system(size: 24, weight: .semibold, design: .rounded))
+        VStack(alignment: .leading, spacing: 0) {
+            Text(LocalizedStringResource.settingsTitle)
+                .font(.system(size: 24, weight: .semibold, design: .rounded))
 
-                Text(LocalizedStringResource.appName)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 4)
+            Text(LocalizedStringResource.appName)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.secondary)
+                .padding(.top, 4)
 
-                settingsSection(String(localized: LocalizedStringResource.settingsSectionGeneral)) {
-                    generalSection
-                }
-
-                settingsSection(String(localized: LocalizedStringResource.settingsSectionWakeModes)) {
-                    wakeModesSection
-                }
-
-                settingsSection(String(localized: LocalizedStringResource.settingsSectionAbout)) {
-                    aboutSection
-                }
+            settingsSection(String(localized: LocalizedStringResource.settingsSectionGeneral)) {
+                generalSection
             }
-            .padding(28)
+
+            settingsSection(String(localized: LocalizedStringResource.sessionModeClosedLidTitle)) {
+                closedLidSection
+            }
+
+            settingsSection(String(localized: LocalizedStringResource.settingsSectionWakeModes)) {
+                wakeModesSection
+            }
+
+            settingsSection(String(localized: LocalizedStringResource.settingsSectionAbout)) {
+                aboutSection
+            }
         }
-        .scrollIndicators(.hidden)
-        .frame(width: 520, height: 500, alignment: .topLeading)
-        .tint(KiplessTheme.accentColor)
+        .padding(28)
         .onAppear { launchAtLogin.refresh() }
     }
 
@@ -157,7 +208,43 @@ struct SettingsView: View {
                 .padding(.vertical, 8)
             }
         }
-        .padding(12)
+        .padding(14)
+        .background(
+            Color.primary.opacity(0.045),
+            in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+        )
+    }
+
+    private var closedLidSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                Image(systemName: "lock.shield.fill")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 32, height: 32)
+                    .background(
+                        Color.primary.opacity(0.07),
+                        in: RoundedRectangle(cornerRadius: 9, style: .continuous)
+                    )
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(SettingsCopy.closedLidApprovalTitle)
+                        .font(.system(size: 13, weight: .medium))
+
+                    Text(SettingsCopy.closedLidApprovalMessage)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Button(LocalizedStringResource.permissionClosedLidApprovalOpenSettings) {
+                KiplessLoginItemsOpener.openLoginItems()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(14)
         .background(
             Color.primary.opacity(0.045),
             in: RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -236,7 +323,11 @@ struct SettingsView: View {
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundStyle(.secondary)
 
+            // Cards must all be the same width whatever they contain: a card
+            // whose content has no Spacer of its own would otherwise shrink to
+            // its ideal width and stand out from the rest.
             content()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.top, 22)
     }

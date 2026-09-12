@@ -125,6 +125,50 @@
         }
       }
     },
+    "permission.closedLid.approval.dismiss" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        }
+      }
+    },
+    "permission.closedLid.approval.message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In System Settings › General › Login Items, turn on Kipless in the background apps list to use Closed Lid mode."
+          }
+        }
+      }
+    },
+    "permission.closedLid.approval.openSettings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Login Items"
+          }
+        }
+      }
+    },
+    "permission.closedLid.approval.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow Closed Lid"
+          }
+        }
+      }
+    },
     "session.action.start" : {
       "extractionState" : "manual",
       "localizations" : {
