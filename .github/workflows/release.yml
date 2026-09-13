@@ -223,7 +223,16 @@ jobs:
             --ed-key-file "$ED_KEY" \
             --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/" \
             -o "$APPCAST_DIR/appcast.xml" \
-            "$APPCAST_DIR"
+            "$APPCAST_DIR" > "$RUNNER_TEMP/appcast.log" 2>&1
+          cat "$RUNNER_TEMP/appcast.log"
+
+          # Sparkle only warns about this, and exits 0: the release would go out
+          # carrying an appcast no client can verify, and nobody would find out
+          # until a user tried to update. Here it stops the release.
+          if grep -q "does not match key EdDSA" "$RUNNER_TEMP/appcast.log"; then
+            echo "The Sparkle signing key does not match SUPublicEDKey in the app." >&2
+            exit 1
+          fi
 
           rm -f "$ED_KEY"
           test -f "$APPCAST_DIR/appcast.xml"
