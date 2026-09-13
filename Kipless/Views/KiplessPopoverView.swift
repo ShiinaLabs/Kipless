@@ -11,6 +11,16 @@ enum KiplessSettingsOpener {
         String(localized: LocalizedStringResource.settingsWindowTitle)
     }
 
+    /// Builds the window, so that the first click does not have to.
+    ///
+    /// The click arrives while SwiftUI is in the middle of updating the
+    /// popover, and building a window there — which lays out a second hosting
+    /// view to measure the content — is avoidable work in a bad place.
+    @MainActor
+    static func prepare() {
+        _ = KiplessSettingsWindowController.shared
+    }
+
     @MainActor
     static func open() {
         KiplessSettingsWindowController.shared.show()
@@ -409,7 +419,7 @@ private struct SessionActionButton: View {
 }
 
 @MainActor
-private final class KiplessSettingsWindowController: NSWindowController {
+private final class KiplessSettingsWindowController: NSWindowController, NSWindowDelegate {
     static let shared = KiplessSettingsWindowController()
 
     private init() {
@@ -425,13 +435,20 @@ private final class KiplessSettingsWindowController: NSWindowController {
             defer: false
         )
 
+        let content = NSHostingController(rootView: SettingsView())
+        // A hosting controller re-derives its window's size from the content's
+        // preferred size, and a scroll container has no preferred height —
+        // which is how this window collapses to nothing. The size set below is
+        // the only one it gets.
+        content.sizingOptions = []
+
         window.title = KiplessSettingsOpener.windowTitle
         window.isReleasedWhenClosed = false
-        window.contentViewController = NSHostingController(rootView: SettingsView())
-        // A scroll container has no intrinsic height, so assigning it as the
-        // content view controller collapses the window; size it explicitly.
+        window.contentViewController = content
         window.setContentSize(NSSize(width: SettingsWindowSizing.width, height: height))
         super.init(window: window)
+
+        window.delegate = self
     }
 
     @available(*, unavailable)
@@ -439,14 +456,38 @@ private final class KiplessSettingsWindowController: NSWindowController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    /// Brings the window to the front, and keeps Kipless able to be frontmost
+    /// while it is there.
+    ///
+    /// The button this is opened from lives in the popover, and a popover is a
+    /// non-activating panel: clicking it never makes Kipless the active app.
+    /// An accessory app can only ask to be activated, and macOS says no to a
+    /// request from an app the user did not just switch to — in which case
+    /// this window is ordered front only within Kipless, landing behind
+    /// whatever the user is actually looking at, which reads as the window
+    /// never having opened.
+    ///
+    /// Becoming a regular app for as long as the window is up is what turns
+    /// that request into one the system grants. It also orders the window
+    /// front regardless, so the window is visible even if activation is still
+    /// refused. The Dock icon is the price, and it goes away with the window.
     func show() {
         guard let window else { return }
 
+        NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
+
         if !window.isVisible {
             window.center()
         }
+
         window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+    }
+
+    func windowWillClose(_ notification: Notification) {
+        // Back to being a menu bar app: no Dock icon, no windows.
+        NSApp.setActivationPolicy(.accessory)
     }
 }
 

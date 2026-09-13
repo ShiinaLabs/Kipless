@@ -22,6 +22,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 WakeSessionManager.shared.systemDidWake()
             }
         }
+
+        // Built now rather than on first use: the Settings button lives in the
+        // popover, and the click that reaches it arrives in the middle of a
+        // SwiftUI update.
+        KiplessSettingsOpener.prepare()
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
