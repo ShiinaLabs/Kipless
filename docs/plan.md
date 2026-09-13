@@ -664,6 +664,10 @@ Check for Updates…
 
 但默认仍应保持安静。
 
+> 2026-09-13 更新：已实现（见 Sparkle 一节）。「不自动检查更新」与「不在
+> 启动时联网」由「自动检查默认关闭」满足；`Check for Updates…` 放在设置窗口
+> （Kipless 是 `LSUIElement`，没有应用菜单栏）。
+
 ---
 
 # 22. 网络与隐私

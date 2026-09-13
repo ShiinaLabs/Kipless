@@ -53,6 +53,9 @@
 		F50978151FFC6359784E57E8 /* SessionCountdownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0449B3B01BBE1879B00A4178 /* SessionCountdownTests.swift */; };
 		DA245D43FED8D52288366CB6 /* SessionPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */; };
 		23D01EA069180CD70664DCB8 /* SessionPresentationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */; };
+		51C997E66EB621BB46072573 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = C53D28AAD7D7742F5818421C /* Sparkle */; };
+		237D3E55F9C03613D5556E13 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EB90995773999E78682866 /* UpdaterService.swift */; };
+		D6EA865AD017E2181E7BFB5E /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -141,7 +144,20 @@
 		FF2FC7682A09760357363FEA /* PMSetSleepOverrideDriver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PMSetSleepOverrideDriver.swift; sourceTree = "<group>"; };
 		0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentation.swift; sourceTree = "<group>"; };
 		1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentationTests.swift; sourceTree = "<group>"; };
+		51EB90995773999E78682866 /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
+		7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActivation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4D9601A2D3F9501C302C7108 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51C997E66EB621BB46072573 /* Sparkle in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		004DCBC24F7DC76931B62332 /* Shared */ = {
@@ -201,12 +217,14 @@
 		55EAE9B2170A9D879C4427DE /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */,
 				DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */,
 				FF2FC7682A09760357363FEA /* PMSetSleepOverrideDriver.swift */,
 				F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */,
 				EA3C3BD614FC1CA739D1F501 /* PrivilegedHelperClient.swift */,
 				06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */,
 				41EC8B64F19F5F39E1BAD7A1 /* SleepOverrideController.swift */,
+				51EB90995773999E78682866 /* UpdaterService.swift */,
 				2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */,
 			);
 			path = Services;
@@ -332,6 +350,7 @@
 			buildConfigurationList = 4A57D39091474A1CF92B697F /* Build configuration list for PBXNativeTarget "Kipless" */;
 			buildPhases = (
 				C815BBC051F68E4BF1147D0D /* Sources */,
+				4D9601A2D3F9501C302C7108 /* Frameworks */,
 				77F0C433EF1ED97393266A87 /* Resources */,
 				70B838A3BE002B63CECE31A7 /* CopyFiles */,
 				27E2C6429FAC88536D1A3BD7 /* Embed Dependencies */,
@@ -343,6 +362,7 @@
 			);
 			name = Kipless;
 			packageProductDependencies = (
+				C53D28AAD7D7742F5818421C /* Sparkle */,
 			);
 			productName = Kipless;
 			productReference = D8AB35931781E0785B5C47F5 /* Kipless.app */;
@@ -413,6 +433,7 @@
 			mainGroup = E02B9E898C74C6EBA43F0B87;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				D29129C68480D1E8A4642F85 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = AEF87F82C7392EB53941AE2D /* Products */;
@@ -465,6 +486,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DA245D43FED8D52288366CB6 /* SessionPresentation.swift in Sources */,
+				D6EA865AD017E2181E7BFB5E /* AppActivation.swift in Sources */,
 				64AE4051190C6640A5004229 /* AppDelegate.swift in Sources */,
 				8B8DF0155C75253563F99B7D /* KiplessApp.swift in Sources */,
 				EFAFFD0615B32A77F03F85F9 /* KiplessLayout.swift in Sources */,
@@ -480,6 +502,7 @@
 				115C1ABADDA3B3FDDF920A87 /* SettingsView.swift in Sources */,
 				EFB5DCAFF7FEB8606C779ED0 /* SleepAssertionManager.swift in Sources */,
 				C109EE05E8C26666E1D00444 /* SleepOverrideController.swift in Sources */,
+				237D3E55F9C03613D5556E13 /* UpdaterService.swift in Sources */,
 				698870650A825BFC12F14C71 /* SleepOverrideModels.swift in Sources */,
 				BD42852EC0E971CEE47306F2 /* WakeDuration.swift in Sources */,
 				C93DDAAB08C6D414327C92FA /* WakeMode.swift in Sources */,
@@ -853,6 +876,24 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		D29129C68480D1E8A4642F85 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.9.6;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C53D28AAD7D7742F5818421C /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D29129C68480D1E8A4642F85 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5760EF94B1009118E07012E9 /* Project object */;
 }

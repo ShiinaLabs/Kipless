@@ -27,6 +27,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // popover, and the click that reaches it arrives in the middle of a
         // SwiftUI update.
         KiplessSettingsOpener.prepare()
+
+        // Likewise: the Settings window reads the updater's state the moment it
+        // opens, and a check Sparkle may run on its own schedule should not
+        // begin from inside a click.
+        _ = UpdaterService.shared
     }
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {

@@ -11,7 +11,9 @@ xcuserdata/
 *.dSYM.zip
 *.dSYM
 .swiftpm/
-Package.resolved
+# The resolved pin is committed on purpose: CI and the release workflow both
+# resolve this dependency, and a floating resolution would let the two disagree.
+!Package.resolved
 
 # Local Swift/Xcode tooling output
 .build/

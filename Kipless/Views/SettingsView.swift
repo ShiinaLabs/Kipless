@@ -14,6 +14,10 @@ enum SettingsCopy {
         String(localized: LocalizedStringResource.settingsMenuBarCountdownDescription)
     }
 
+    static var updatesDescription: String {
+        String(localized: LocalizedStringResource.settingsUpdatesDescription)
+    }
+
     static var closedLidApprovalTitle: String {
         String(localized: LocalizedStringResource.permissionClosedLidApprovalTitle)
     }
@@ -102,6 +106,7 @@ struct SettingsContentView: View {
     @State private var launchAtLogin = LaunchAtLoginService()
     @AppStorage(MenuBarCountdownPreference.storageKey)
     private var showsMenuBarCountdown = MenuBarCountdownPreference.defaultValue
+    @State private var updater = UpdaterService.shared
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -176,6 +181,8 @@ struct SettingsContentView: View {
             }
 
             menuBarCountdownRow
+
+            updatesRow
         }
         .padding(14)
         .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -200,6 +207,41 @@ struct SettingsContentView: View {
                 isOn: $showsMenuBarCountdown
             )
             .labelsHidden()
+            .controlSize(.small)
+        }
+    }
+
+    private var updatesRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top, spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(LocalizedStringResource.settingsUpdatesTitle)
+                        .font(.system(size: 13, weight: .medium))
+
+                    Text(SettingsCopy.updatesDescription)
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer(minLength: 12)
+
+                Toggle(
+                    String(localized: LocalizedStringResource.settingsUpdatesTitle),
+                    isOn: Binding(
+                        get: { updater.automaticallyChecksForUpdates },
+                        set: { updater.setAutomaticallyChecksForUpdates($0) }
+                    )
+                )
+                .labelsHidden()
+                .controlSize(.small)
+            }
+
+            // Manual, and always available — including when the toggle above is
+            // off, which is what the default is.
+            Button(String(localized: LocalizedStringResource.settingsUpdatesCheckNow)) {
+                updater.checkForUpdates()
+            }
             .controlSize(.small)
         }
     }

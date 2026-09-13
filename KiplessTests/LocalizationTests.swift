@@ -63,6 +63,9 @@ final class LocalizationTests: XCTestCase {
             LocalizedStringResource.settingsSectionGeneral.key,
             LocalizedStringResource.settingsSectionWakeModes.key,
             LocalizedStringResource.settingsTitle.key,
+            LocalizedStringResource.settingsUpdatesCheckNow.key,
+            LocalizedStringResource.settingsUpdatesDescription.key,
+            LocalizedStringResource.settingsUpdatesTitle.key,
             LocalizedStringResource.settingsWindowTitle.key
         ]
 
@@ -117,6 +120,15 @@ final class LocalizationTests: XCTestCase {
         )
     }
 
+    /// The privacy line is the one piece of copy an update check can turn into
+    /// a lie, so its exact wording is pinned here.
+    func testPrivacyCopyMatchesWhatTheAppActuallyDoes() {
+        XCTAssertEqual(
+            String(localized: LocalizedStringResource.settingsAboutPrivacy),
+            "No accounts, no telemetry. It only goes online when you ask it to."
+        )
+    }
+
     func testIndefinitePresentationCopyHasEnglishFallbackValues() {
         XCTAssertEqual(
             String(localized: LocalizedStringResource.sessionIndefiniteIdle),
@@ -136,7 +148,9 @@ final class LocalizationTests: XCTestCase {
         let sampleKeys = [
             "permission.closedLid.error.notResponding",
             "settings.menuBarCountdown.title",
-            "settings.menuBarCountdown.description"
+            "settings.menuBarCountdown.description",
+            "settings.updates.title",
+            "settings.updates.checkNow"
         ]
         let english = sampleKeys.map {
             Bundle.main.localizedString(forKey: $0, value: nil, table: nil)

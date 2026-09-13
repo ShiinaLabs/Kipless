@@ -22,7 +22,8 @@ them. Quitting Kipless ends the session too.
 
 Download `Kipless.dmg` from the [latest release][releases], open it, and drag
 Kipless to Applications. Builds are signed with a Developer ID and notarized by
-Apple.
+Apple. After that Kipless updates itself: **Check for Updates…** in Settings, or
+turn on automatic checks and it will look for new versions on its own.
 
 [releases]: https://github.com/ShiinaLabs/Kipless/releases/latest
 
@@ -44,8 +45,9 @@ macOS 14 (Sonoma) or later. Localized in English, 简体中文, 繁體中文, �
 
 ## Privacy
 
-No account, no analytics, no telemetry, no crash reporting, no update check, and
-no network connections. Nothing about you or your Mac leaves the machine.
+No account, no analytics, no telemetry, no crash reporting. The one thing that
+uses the network is an update check, and Kipless only goes online when you ask
+it to — automatic checks stay off until you turn them on.
 
 ## Development
 

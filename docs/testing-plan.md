@@ -16,7 +16,7 @@ Release Preflight
 - 真实 macOS Power Management 集成测试只在开发者自己的 Mac 上运行。
 - 不等待真实睡眠、息屏、15/30/60/120 分钟 Session 或 24 小时稳定性。
 - 不依赖人工点击 UI 判断核心逻辑。
-- 不增加第三方运行时依赖或长期 CI 成本。
+- 第三方运行时依赖只有 Sparkle（应用内更新），版本由提交的 `Package.resolved` 固定；不引入其他依赖。
 - `KiplessPowerTestHelper` 是独立测试 executable，永远不进入发布包。
 - Launch at Login 的 approval UI、DMG 安装、notarization、Gatekeeper 与真实睡眠不是普通 CI 的测试项。
 - `Closed Lid` 的 root helper/XPC 测试不在 Fast CI 中执行。

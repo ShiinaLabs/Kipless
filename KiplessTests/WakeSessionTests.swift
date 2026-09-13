@@ -54,6 +54,10 @@ final class WakeSessionTests: XCTestCase {
             SettingsCopy.menuBarCountdownDescription,
             "Show the time remaining in the menu bar while a session is running."
         )
+        XCTAssertEqual(
+            SettingsCopy.updatesDescription,
+            "Check for new versions in the background."
+        )
         XCTAssertEqual(SettingsCopy.aboutDescription, "Lightweight and private.")
         XCTAssertEqual(SettingsCopy.closedLidApprovalTitle, "Allow Closed Lid")
         XCTAssertEqual(

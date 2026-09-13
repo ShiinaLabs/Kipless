@@ -66,6 +66,29 @@ run_release_bundle_checks() {
         return 1
     }
     [[ "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.lidsleep' "$helper_plist")" == 'true' ]] || return 1
+
+    local sparkle_path="$app_path/Contents/Frameworks/Sparkle.framework"
+
+    # Sparkle installs an update by handing off to its own updater and then
+    # swapping the app out, so it has to be embedded along with the XPC services
+    # it drives the install through. Notarization rejects the DMG if any of that
+    # nested code is unsigned or carries a different team, and the app cannot
+    # update at all without the XPC services.
+    [[ -d "$sparkle_path" ]] || {
+        printf 'Sparkle.framework is not embedded: %s\n' "$sparkle_path" >&2
+        return 1
+    }
+    [[ -d "$sparkle_path/Versions/Current/XPCServices" ]] || {
+        printf 'Sparkle is embedded without its XPC services.\n' >&2
+        return 1
+    }
+
+    # Without this key no downloaded update can be verified, so a build without
+    # it could ship but never update.
+    [[ -n "$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' "$app_path/Contents/Info.plist" 2>/dev/null)" ]] || {
+        printf 'Info.plist has no SUPublicEDKey; no update could be verified.\n' >&2
+        return 1
+    }
 }
 
 final_cleanup() {

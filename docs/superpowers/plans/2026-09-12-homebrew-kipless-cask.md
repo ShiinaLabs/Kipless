@@ -16,7 +16,10 @@
 - Use the fixed Release asset name `Kipless.dmg`; do not put a version in the DMG filename.
 - Use stable SemVer tags only (`vX.Y.Z`); do not update from drafts or prereleases.
 - Do not modify the WiFi Lens application repository or its existing updater script/workflow.
-- Do not add Sparkle or mark Kipless as `auto_updates true`; Kipless has no in-app updater.
+- Do not mark Kipless as `auto_updates true`; the Cask stays the explicit install
+and upgrade path. (Superseded in part on 2026-09-13: Kipless does now ship an
+in-app updater via Sparkle, which the tap tolerates — it already does for WiFi
+Lens. The `auto_updates` half of this constraint still holds.)
 - Do not store tokens, passwords, or other secrets in the repository or knowledge base.
 
 ---

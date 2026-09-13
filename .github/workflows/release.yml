@@ -9,6 +9,7 @@ name: Release
 #   APPLE_TEAM_ID                             Developer Team ID (organization variable)
 #   APPLE_ID                                  Apple ID used for notarization
 #   APPLE_APP_SPECIFIC_PASSWORD               app-specific password for that Apple ID
+#   SPARKLE_ED25519_PRIVATE_KEY               Sparkle's EdDSA private key, for the appcast
 
 on:
   push:
@@ -27,6 +28,10 @@ jobs:
     runs-on: macos-latest
     env:
       TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+      # Keep in step with the Swift package requirement in project.pbxproj. The
+      # tools that sign the appcast have to match the framework that validates
+      # it on the client.
+      SPARKLE_VERSION: "2.9.6"
     steps:
       - uses: actions/checkout@v4
 
@@ -50,6 +55,27 @@ jobs:
             printf 'tag=v%s\n' "$VERSION"
             printf 'build=%s\n' "$GITHUB_RUN_NUMBER"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Check the tag is newer than the last release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Two reasons this is a hard stop. Sparkle decides what to offer by
+          # comparing versions, and the feed below hangs off "the latest
+          # release" — so a lower version published after a higher one would
+          # stop offering the higher one to everyone who already has it, and no
+          # client could recover from that on its own.
+          LATEST="$(gh release view --json tagName --jq .tagName 2>/dev/null || true)"
+          if [ -z "$LATEST" ]; then
+            echo "No published release to compare against."
+            exit 0
+          fi
+          NEWEST="$(printf '%s\n%s\n' "${LATEST#v}" "$VERSION" | sort -V | tail -1)"
+          if [ "$NEWEST" != "$VERSION" ]; then
+            echo "Refusing to publish $VERSION: $LATEST is newer." >&2
+            exit 1
+          fi
 
       - name: Import Developer ID certificate
         env:
@@ -116,6 +142,32 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :BundleProgram' "$PLIST")" = "Contents/MacOS/KiplessSleepHelper"
           test "$(/usr/libexec/PlistBuddy -c 'Print :MachServices:com.kaoru.kipless.lidsleep' "$PLIST")" = "true"
 
+      - name: Verify Sparkle packaging
+        run: |
+          # Sparkle brings nested code — XPC services, an updater app — and
+          # notarization rejects the DMG if any of it is unsigned or signed
+          # with a different team. The XPC directory is the part that goes
+          # missing first if embedding regresses, and Sparkle cannot update at
+          # all without it.
+          APP="$RUNNER_TEMP/export/Kipless.app"
+          SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+          test -d "$SPARKLE"
+          test -d "$SPARKLE/Versions/Current/XPCServices"
+          test -f "$APP/Contents/Info.plist"
+          test -n "$(/usr/libexec/PlistBuddy -c 'Print :SUPublicEDKey' "$APP/Contents/Info.plist")"
+          test -n "$(/usr/libexec/PlistBuddy -c 'Print :SUFeedURL' "$APP/Contents/Info.plist")"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+
+      - name: Download Sparkle tools
+        run: |
+          curl --fail --location --silent --show-error \
+            --output "$RUNNER_TEMP/sparkle.tar.xz" \
+            "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          tar -xf "$RUNNER_TEMP/sparkle.tar.xz" -C "$RUNNER_TEMP"
+          SPARKLE_BIN_DIR="$(dirname "$(find "$RUNNER_TEMP" -name generate_appcast -type f | head -1)")"
+          test -n "$SPARKLE_BIN_DIR"
+          echo "$SPARKLE_BIN_DIR" >> "$GITHUB_PATH"
+
       - name: Build DMG
         id: dmg
         run: |
@@ -150,16 +202,49 @@ jobs:
           spctl --assess --type install -v \
             "${{ steps.dmg.outputs.path }}"
 
+      - name: Generate signed appcast
+        id: appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_ED25519_PRIVATE_KEY }}
+        run: |
+          # Sparkle signs the archive itself; there is no separate signing step.
+          # The key here and SUPublicEDKey in Info.plist have to be a matching
+          # pair — a mismatch fails silently, on the client, at install time.
+          ED_KEY="$RUNNER_TEMP/sparkle-ed-key"
+          printf '%s' "$SPARKLE_PRIVATE_KEY" > "$ED_KEY"
+
+          APPCAST_DIR="$RUNNER_TEMP/appcast"
+          mkdir -p "$APPCAST_DIR"
+          cp "${{ steps.dmg.outputs.path }}" "$APPCAST_DIR/"
+
+          # The prefix has to end in a slash: the enclosure URL is built by
+          # joining it to the file name.
+          generate_appcast \
+            --ed-key-file "$ED_KEY" \
+            --download-url-prefix "https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/" \
+            -o "$APPCAST_DIR/appcast.xml" \
+            "$APPCAST_DIR"
+
+          rm -f "$ED_KEY"
+          test -f "$APPCAST_DIR/appcast.xml"
+          echo "path=$APPCAST_DIR/appcast.xml" >> "$GITHUB_OUTPUT"
+
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG="${{ steps.version.outputs.tag }}"
+          # The appcast is a release asset with a stable name: SUFeedURL points
+          # at releases/latest/download/appcast.xml, which only resolves if
+          # every release carries it.
+          ASSETS=(
+            "${{ steps.dmg.outputs.path }}"
+            "${{ steps.appcast.outputs.path }}"
+          )
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "${{ steps.dmg.outputs.path }}" --clobber
+            gh release upload "$TAG" "${ASSETS[@]}" --clobber
           else
-            gh release create "$TAG" \
-              "${{ steps.dmg.outputs.path }}" \
+            gh release create "$TAG" "${ASSETS[@]}" \
               --title "Kipless ${{ steps.version.outputs.version }}" \
               --generate-notes
           fi

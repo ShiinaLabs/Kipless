@@ -2607,61 +2607,61 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No accounts, telemetry, or network connections."
+            "value": "No accounts, no telemetry. It only goes online when you ask it to."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无账户、无遥测、无网络连接。"
+            "value": "无账户、无遥测。只有你要求时才联网。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アカウント・テレメトリ・ネットワーク接続はありません。"
+            "value": "アカウントもテレメトリもありません。接続するのは、あなたが求めたときだけです。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정, 원격 측정, 네트워크 연결이 없습니다."
+            "value": "계정도 텔레메트리도 없습니다. 연결은 요청할 때만 이루어집니다."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有帳號、遙測或網路連線。"
+            "value": "無帳號、無遙測。只有你要求時才連線。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Konten, Telemetrie oder Netzwerkverbindungen."
+            "value": "Keine Konten, keine Telemetrie. Verbindet sich nur, wenn du es verlangst."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun compte, télémétrie ou connexion réseau."
+            "value": "Aucun compte, aucune télémétrie. Ne se connecte que si vous le demandez."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin cuentas, telemetría ni conexiones de red."
+            "value": "Sin cuentas ni telemetría. Solo se conecta cuando lo pides."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun account, telemetria o connessione di rete."
+            "value": "Nessun account, nessuna telemetria. Si connette solo quando lo chiedi."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem contas, telemetria ou conexões de rede."
+            "value": "Sem contas, sem telemetria. Só se conecta quando você pede."
           }
         }
       }
@@ -2922,6 +2922,201 @@
           "stringUnit": {
             "state": "translated",
             "value": "Contagem regressiva na barra de menus"
+          }
+        }
+      }
+    },
+    "settings.updates.checkNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "检查更新…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アップデートを確認…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "업데이트 확인…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢查更新…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach Updates suchen…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher les mises à jour…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar actualizaciones…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca aggiornamenti…"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verificar atualizações…"
+          }
+        }
+      }
+    },
+    "settings.updates.description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for new versions in the background."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在后台检查新版本。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックグラウンドで新しいバージョンを確認します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백그라운드에서 새 버전을 확인합니다."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在背景檢查新版本。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sucht im Hintergrund nach neuen Versionen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche les nouvelles versions en arrière-plan."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Busca nuevas versiones en segundo plano."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca nuove versioni in background."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Procura novas versões em segundo plano."
+          }
+        }
+      }
+    },
+    "settings.updates.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic Updates"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动更新"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動アップデート"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 업데이트"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動更新"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische Updates"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mises à jour automatiques"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizaciones automáticas"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiornamenti automatici"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atualizações automáticas"
           }
         }
       }

@@ -456,26 +456,15 @@ private final class KiplessSettingsWindowController: NSWindowController, NSWindo
         fatalError("init(coder:) has not been implemented")
     }
 
-    /// Brings the window to the front, and keeps Kipless able to be frontmost
-    /// while it is there.
+    /// Brings the window to the front.
     ///
-    /// The button this is opened from lives in the popover, and a popover is a
-    /// non-activating panel: clicking it never makes Kipless the active app.
-    /// An accessory app can only ask to be activated, and macOS says no to a
-    /// request from an app the user did not just switch to — in which case
-    /// this window is ordered front only within Kipless, landing behind
-    /// whatever the user is actually looking at, which reads as the window
-    /// never having opened.
-    ///
-    /// Becoming a regular app for as long as the window is up is what turns
-    /// that request into one the system grants. It also orders the window
-    /// front regardless, so the window is visible even if activation is still
-    /// refused. The Dock icon is the price, and it goes away with the window.
+    /// `AppActivation` is what makes Kipless able to be frontmost at all while
+    /// this is up; ordering the window front regardless then covers the case
+    /// where activation is still refused, so the window is at least visible.
     func show() {
         guard let window else { return }
 
-        NSApp.setActivationPolicy(.regular)
-        NSApp.activate(ignoringOtherApps: true)
+        AppActivation.begin()
 
         if !window.isVisible {
             window.center()
@@ -486,8 +475,7 @@ private final class KiplessSettingsWindowController: NSWindowController, NSWindo
     }
 
     func windowWillClose(_ notification: Notification) {
-        // Back to being a menu bar app: no Dock icon, no windows.
-        NSApp.setActivationPolicy(.accessory)
+        AppActivation.end()
     }
 }
 
