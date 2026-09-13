@@ -32,5 +32,7 @@
 	<string>https://github.com/ShiinaLabs/Kipless/releases/latest/download/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<false/>
+	<key>SUPublicEDKey</key>
+	<string>DUcvL7RzZrjRBNr+lIn15cbk0Uvm4SboSpvlz9H2z5g=</string>
 </dict>
 </plist>
