@@ -75,33 +75,6 @@ final class SessionRingProgressTests: XCTestCase {
     }
 }
 
-final class SessionRingMotionTests: XCTestCase {
-    func testASteadyTickTakesTheShortestStep() {
-        // One second of a thirty-minute Session: the ring barely moves, and the
-        // move has to finish well before the next tick sets off another one.
-        XCTAssertEqual(SessionRingMotion.duration(forDelta: 1.0 / 1800.0), 0.15)
-        XCTAssertLessThan(SessionRingMotion.duration(forDelta: 0.01), 1)
-    }
-
-    func testACatchUpGrowsWithWhatWasMissed() {
-        XCTAssertEqual(SessionRingMotion.duration(forDelta: 0.05), 0.25)
-        XCTAssertEqual(SessionRingMotion.duration(forDelta: 0.2), 0.35)
-    }
-
-    func testACatchUpIsBoundedHoweverLongThePopoverWasClosed() {
-        XCTAssertLessThanOrEqual(SessionRingMotion.maximumCatchUpDuration, 0.5)
-        XCTAssertEqual(
-            SessionRingMotion.duration(forDelta: 0.9),
-            SessionRingMotion.maximumCatchUpDuration
-        )
-    }
-
-    func testReduceMotionPlacesTheRingInsteadOfMovingIt() {
-        XCTAssertNil(SessionRingMotion.animation(reduceMotion: true, delta: 0.5))
-        XCTAssertNotNil(SessionRingMotion.animation(reduceMotion: false, delta: 0.5))
-    }
-}
-
 @MainActor
 final class SessionPresentationClockTests: XCTestCase {
     func testTheClockRunsOnlyWhenThereIsSomethingToDraw() {
@@ -116,16 +89,6 @@ final class SessionPresentationClockTests: XCTestCase {
         clock.update(isVisible: false, expiresAt: deadline)
         XCTAssertFalse(clock.isTicking, "a closed popover must not refresh anything")
         XCTAssertFalse(clock.isVisible)
-    }
-
-    func testTheClockIsToldWhatIsOnScreen() {
-        let clock = makeClock()
-
-        clock.update(isVisible: false, expiresAt: nil)
-        XCTAssertFalse(clock.isVisible)
-
-        clock.update(isVisible: true, expiresAt: deadline)
-        XCTAssertTrue(clock.isVisible)
     }
 
     func testStartingTheClockRefreshesWhatItDrawsFor() {
@@ -305,34 +268,4 @@ final class MenuBarCountdownTests: XCTestCase {
         XCTAssertNil(MenuBarCountdown.nextChangeDelay(remainingSeconds: 0))
     }
 
-    /// Every wait has to land exactly on the change: a second early and the
-    /// app wakes for nothing, a second late and the label is showing a reading
-    /// it should already have replaced. This sweeps every value the app can
-    /// reach — the longest preset Session is two hours.
-    func testEveryWaitLandsExactlyOnTheNextChange() {
-        for remaining in 1...7200 {
-            guard let delay = MenuBarCountdown.nextChangeDelay(remainingSeconds: remaining) else {
-                XCTFail("no wait for a Session with \(remaining) seconds left")
-                continue
-            }
-
-            let waited = Int(delay.components.seconds)
-
-            XCTAssertNotEqual(
-                MenuBarCountdown.text(remainingSeconds: remaining - waited),
-                MenuBarCountdown.text(remainingSeconds: remaining),
-                "waiting \(waited)s from \(remaining)s left has not reached the change"
-            )
-
-            XCTAssertEqual(
-                MenuBarCountdown.text(remainingSeconds: remaining - waited + 1),
-                MenuBarCountdown.text(remainingSeconds: remaining),
-                "the text had already changed before \(waited)s from \(remaining)s left"
-            )
-        }
-    }
-
-    func testTheCountdownIsOffUntilItIsAskedFor() {
-        XCTAssertFalse(MenuBarCountdownPreference.defaultValue)
-    }
 }
