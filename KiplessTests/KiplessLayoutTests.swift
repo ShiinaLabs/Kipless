@@ -2,22 +2,8 @@ import XCTest
 @testable import Kipless
 
 final class KiplessLayoutTests: XCTestCase {
-    func testQuietOptionsFitWithThreeEnglishModes() {
-        let contentHeight = KiplessLayout.optionsContentHeight(
-            explanationLines: 1,
-            modeLineCounts: [
-                (title: 1, subtitle: 2),
-                (title: 1, subtitle: 1),
-                (title: 1, subtitle: 2)
-            ]
-        )
-
-        XCTAssertLessThanOrEqual(contentHeight, KiplessLayout.sessionPanelHeight)
-    }
-
     func testThreeModeRowsHaveIntentionalBreathingRoom() {
         XCTAssertEqual(KiplessLayout.modeOptionVerticalPadding, 4)
-        XCTAssertEqual(KiplessLayout.modeOptionSpacing, 5)
     }
 
     func testDurationPickerHasRoomForTheEnglishPresetLabel() {

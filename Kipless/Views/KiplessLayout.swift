@@ -97,36 +97,7 @@ enum KiplessLayout {
 
     static let optionsHorizontalPadding: CGFloat = 18
     static let optionsVerticalPadding: CGFloat = 8
-    static let explanationLineHeight: CGFloat = 11
-    static let explanationBottomPadding: CGFloat = 4
     static let modeOptionVerticalPadding: CGFloat = 4
-    static let modeOptionSpacing: CGFloat = 5
-    static let modeTitleLineHeight: CGFloat = 13
-    static let modeSubtitleLineHeight: CGFloat = 11
-    static let modeTextSpacing: CGFloat = 2
-    static let minimumContentGap: CGFloat = 0
     static let durationRowHeight: CGFloat = 18
     static let durationPickerWidth: CGFloat = 96
-
-    static func optionsContentHeight(
-        explanationLines: Int,
-        modeLineCounts: [(title: Int, subtitle: Int)]
-    ) -> CGFloat {
-        let modesHeight = modeLineCounts.reduce(CGFloat.zero) { total, lines in
-            total
-                + (modeOptionVerticalPadding * 2)
-                + (CGFloat(lines.title) * modeTitleLineHeight)
-                + (CGFloat(lines.subtitle) * modeSubtitleLineHeight)
-                + modeTextSpacing
-        }
-        let modeSpacingHeight = CGFloat(max(modeLineCounts.count - 1, 0)) * modeOptionSpacing
-
-        return (optionsVerticalPadding * 2)
-            + (CGFloat(explanationLines) * explanationLineHeight)
-            + explanationBottomPadding
-            + modesHeight
-            + modeSpacingHeight
-            + minimumContentGap
-            + durationRowHeight
-    }
 }
