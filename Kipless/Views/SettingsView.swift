@@ -14,6 +14,7 @@ enum SettingsCopy {
         String(localized: LocalizedStringResource.settingsMenuBarCountdownDescription)
     }
 
+#if !KIPLESS_APP_STORE
     static var updatesDescription: String {
         String(localized: LocalizedStringResource.settingsUpdatesDescription)
     }
@@ -25,6 +26,7 @@ enum SettingsCopy {
     static var closedLidApprovalMessage: String {
         String(localized: LocalizedStringResource.permissionClosedLidApprovalMessage)
     }
+#endif
 }
 
 private struct SettingsModeRow: Identifiable {
@@ -106,7 +108,9 @@ struct SettingsContentView: View {
     @State private var launchAtLogin = LaunchAtLoginService()
     @AppStorage(MenuBarCountdownPreference.storageKey)
     private var showsMenuBarCountdown = MenuBarCountdownPreference.defaultValue
+#if !KIPLESS_APP_STORE
     @State private var updater = UpdaterService.shared
+#endif
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -122,9 +126,11 @@ struct SettingsContentView: View {
                 generalSection
             }
 
+#if !KIPLESS_APP_STORE
             settingsSection(String(localized: LocalizedStringResource.sessionModeClosedLidTitle)) {
                 closedLidSection
             }
+#endif
 
             settingsSection(String(localized: LocalizedStringResource.settingsSectionWakeModes)) {
                 wakeModesSection
@@ -182,7 +188,9 @@ struct SettingsContentView: View {
 
             menuBarCountdownRow
 
+#if !KIPLESS_APP_STORE
             updatesRow
+#endif
         }
         .padding(14)
         .background(Color.primary.opacity(0.045), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -211,6 +219,7 @@ struct SettingsContentView: View {
         }
     }
 
+#if !KIPLESS_APP_STORE
     private var updatesRow: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 16) {
@@ -245,6 +254,7 @@ struct SettingsContentView: View {
             .controlSize(.small)
         }
     }
+#endif
 
     private var wakeModesSection: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -293,6 +303,7 @@ struct SettingsContentView: View {
         )
     }
 
+#if !KIPLESS_APP_STORE
     private var closedLidSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 12) {
@@ -328,6 +339,7 @@ struct SettingsContentView: View {
             in: RoundedRectangle(cornerRadius: 12, style: .continuous)
         )
     }
+#endif
 
     private func statusCell(_ status: SettingsModeStatus) -> some View {
         Text(status.icon)
@@ -337,7 +349,7 @@ struct SettingsContentView: View {
     }
 
     private var modeRows: [SettingsModeRow] {
-        return [
+        var rows = [
             SettingsModeRow(
                 mode: .system,
                 idleSleep: .blocked,
@@ -349,14 +361,19 @@ struct SettingsContentView: View {
                 idleSleep: .blocked,
                 displaySleep: .blocked,
                 lidSleep: .allowed
-            ),
+            )
+        ]
+#if !KIPLESS_APP_STORE
+        rows.append(
             SettingsModeRow(
                 mode: .closedLid,
                 idleSleep: .blocked,
                 displaySleep: .allowed,
                 lidSleep: .blocked
             )
-        ]
+        )
+#endif
+        return rows
     }
 
     private var aboutSection: some View {

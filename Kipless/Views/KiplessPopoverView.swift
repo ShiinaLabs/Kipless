@@ -27,6 +27,7 @@ enum KiplessSettingsOpener {
     }
 }
 
+#if !KIPLESS_APP_STORE
 enum KiplessDonationOpener {
     private static let url = URL(string: "https://shiinalabs.com/donate/")!
 
@@ -35,7 +36,9 @@ enum KiplessDonationOpener {
         NSWorkspace.shared.open(url)
     }
 }
+#endif
 
+#if !KIPLESS_APP_STORE
 @MainActor
 enum KiplessLoginItemsOpener {
     typealias LaunchSystemSettings = @Sendable (
@@ -136,6 +139,7 @@ enum ClosedLidApprovalAlert {
         return alert.runModal() == .alertFirstButtonReturn
     }
 }
+#endif
 
 fileprivate enum KiplessMotion {
     static func sessionState(reduceMotion: Bool) -> Animation {
@@ -531,6 +535,7 @@ struct KiplessPopoverView: View {
         .onChange(of: presentation.now) { _, _ in
             syncDisplayedProgress()
         }
+#if !KIPLESS_APP_STORE
         .onChange(of: manager.lidApprovalIsRequired) { _, isRequired in
             guard isRequired else { return }
 
@@ -539,6 +544,7 @@ struct KiplessPopoverView: View {
             // run loops underneath it, so hand it to the next main-actor turn.
             Task { @MainActor in ClosedLidApprovalAlert.present() }
         }
+#endif
     }
 
     // MARK: - Session control
@@ -798,6 +804,7 @@ struct KiplessPopoverView: View {
                     .foregroundStyle(.secondary)
             }
 
+#if !KIPLESS_APP_STORE
             Button {
                 KiplessDonationOpener.open()
             } label: {
@@ -825,6 +832,7 @@ struct KiplessPopoverView: View {
             }
             .buttonStyle(.plain)
             .help(String(localized: LocalizedStringResource.supportActionDonate))
+#endif
 
             Spacer(minLength: 0)
 

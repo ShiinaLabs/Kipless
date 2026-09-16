@@ -22,10 +22,14 @@ final class WakeSessionManager {
     /// Set when a Closed Lid start failed because the privileged helper still
     /// needs its Login Items approval. The Popover turns this into a dialog:
     /// the failure needs an answer, not another line of status.
+#if !KIPLESS_APP_STORE
     private(set) var lidApprovalIsRequired = false
+#endif
 
     /// How long quitting waits for a Closed Lid transition to unwind.
+#if !KIPLESS_APP_STORE
     static let defaultTerminationTimeout: Duration = .seconds(3)
+#endif
 
     /// Waits out the time left before a deadline is checked again.
     ///
@@ -35,15 +39,22 @@ final class WakeSessionManager {
     typealias DeadlineSleeper = @MainActor (Duration) async -> Void
 
     private let assertions: SleepAsserting
+#if !KIPLESS_APP_STORE
     private let lidSleepOverride: LidSleepOverrideClient
+#endif
     private let dateProvider: () -> Date
+#if !KIPLESS_APP_STORE
     private let terminationTimeout: Duration
+#endif
     private let sleeper: DeadlineSleeper
     private var expiryTask: Task<Void, Never>?
+#if !KIPLESS_APP_STORE
     private var transitionTask: Task<Void, Never>?
     private var transitionID = 0
     private var pendingTransitionID: Int?
+#endif
 
+#if !KIPLESS_APP_STORE
     init(
         assertions: SleepAsserting = SleepAssertionManager(),
         lidSleepOverride: LidSleepOverrideClient = PrivilegedHelperClient(),
@@ -57,10 +68,23 @@ final class WakeSessionManager {
         self.terminationTimeout = terminationTimeout
         self.sleeper = sleeper
     }
+#else
+    init(
+        assertions: SleepAsserting = SleepAssertionManager(),
+        dateProvider: @escaping () -> Date = Date.init,
+        sleeper: @escaping DeadlineSleeper = { try? await Task.sleep(for: $0) }
+    ) {
+        self.assertions = assertions
+        self.dateProvider = dateProvider
+        self.sleeper = sleeper
+    }
+#endif
 
     var isActive: Bool { session != nil }
 
-    /// True while the Closed Lid backend is acquiring or releasing its lease.
+    /// True while a distribution-specific backend is acquiring or releasing
+    /// its lease. The App Store edition has no asynchronous backend, so this
+    /// remains false there.
     /// A transition is kept separate from `isActive` so the UI cannot start a
     /// second Session while the previous helper operation is still unwinding.
     private(set) var isTransitioning = false
@@ -80,10 +104,12 @@ final class WakeSessionManager {
         // phase. Do not overlap a new acquire with that release.
         guard !isTransitioning else { return }
 
+#if !KIPLESS_APP_STORE
         if mode == .closedLid {
             startClosedLidSession(duration: duration)
             return
         }
+#endif
 
         do {
             try assertions.acquire(for: mode)
@@ -99,6 +125,7 @@ final class WakeSessionManager {
 
     /// Ends the session and releases the assertion. Safe to call when inactive.
     func stop() {
+#if !KIPLESS_APP_STORE
         transitionID &+= 1
         cancelExpiry()
 
@@ -111,11 +138,18 @@ final class WakeSessionManager {
         } else if pendingTransitionID == nil {
             isTransitioning = false
         }
+#else
+        cancelExpiry()
+        session = nil
+        assertions.release()
+        isTransitioning = false
+#endif
     }
 
     /// Waits for any Closed Lid acquire/release operation before allowing the
     /// app to terminate. Normal cleanup still goes through `stop()` so this is
     /// also safe when no Session is running.
+#if !KIPLESS_APP_STORE
     func prepareForTermination(completion: @escaping @MainActor () -> Void) {
         stop()
 
@@ -138,6 +172,7 @@ final class WakeSessionManager {
             try? await Task.sleep(for: .milliseconds(20))
         }
     }
+#endif
 
     func dismissError() {
         errorMessage = nil
@@ -145,9 +180,11 @@ final class WakeSessionManager {
 
     /// Called once the approval dialog has been shown, so it is asked once per
     /// failed attempt rather than on every redraw.
+#if !KIPLESS_APP_STORE
     func acknowledgeLidApprovalRequest() {
         lidApprovalIsRequired = false
     }
+#endif
 
     // MARK: - Expiry
 
@@ -205,6 +242,7 @@ final class WakeSessionManager {
 
     // MARK: - Closed Lid backend
 
+#if !KIPLESS_APP_STORE
     private func startClosedLidSession(duration: WakeDuration) {
         transitionID &+= 1
         let id = transitionID
@@ -303,4 +341,5 @@ final class WakeSessionManager {
         transitionTask = nil
         isTransitioning = false
     }
+#endif
 }

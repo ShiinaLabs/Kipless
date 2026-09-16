@@ -12,7 +12,9 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
 
     /// Blocks idle system sleep and temporarily overrides normal lid-close
     /// sleep. The display may still switch off on its own schedule.
+#if !KIPLESS_APP_STORE
     case closedLid
+#endif
 
     var id: String { rawValue }
 
@@ -20,7 +22,9 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: .system
         case .display: .display
+#if !KIPLESS_APP_STORE
         case .closedLid: .system
+#endif
         }
     }
 
@@ -29,7 +33,9 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: String(localized: LocalizedStringResource.sessionModeSystemTitle)
         case .display: String(localized: LocalizedStringResource.sessionModeDisplayTitle)
+#if !KIPLESS_APP_STORE
         case .closedLid: String(localized: LocalizedStringResource.sessionModeClosedLidTitle)
+#endif
         }
     }
 
@@ -38,7 +44,9 @@ enum WakeMode: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .system: String(localized: LocalizedStringResource.sessionModeSystemSubtitle)
         case .display: String(localized: LocalizedStringResource.sessionModeDisplaySubtitle)
+#if !KIPLESS_APP_STORE
         case .closedLid: String(localized: LocalizedStringResource.sessionModeClosedLidSubtitle)
+#endif
         }
     }
 

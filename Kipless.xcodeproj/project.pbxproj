@@ -56,6 +56,24 @@
 		51C997E66EB621BB46072573 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = C53D28AAD7D7742F5818421C /* Sparkle */; };
 		237D3E55F9C03613D5556E13 /* UpdaterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51EB90995773999E78682866 /* UpdaterService.swift */; };
 		D6EA865AD017E2181E7BFB5E /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */; };
+		A50100010000000000000001 /* KiplessAppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50100020000000000000002 /* KiplessAppStore.swift */; };
+		A50100010000000000000003 /* PowerAssertionDriver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D4DBD90690CE7939CE2163 /* PowerAssertionDriver.swift */; };
+		A50100010000000000000004 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8B9721F7156F4D89D687B20A /* Assets.xcassets */; };
+		A50100010000000000000010 /* SessionPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A004E4B0B4868DE9EB3F823 /* SessionPresentation.swift */; };
+		A50100010000000000000011 /* AppActivation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */; };
+		A50100010000000000000012 /* KiplessLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60CF9728690B4A181A2F2FDB /* KiplessLayout.swift */; };
+		A50100010000000000000013 /* KiplessPopoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59106BCBFCAB7663D105B90A /* KiplessPopoverView.swift */; };
+		A50100010000000000000014 /* KiplessStrings.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB0C4BBD1296A31FEBBC387 /* KiplessStrings.swift */; };
+		A50100010000000000000015 /* LaunchAtLoginService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABF158590AE246CCD46E238 /* LaunchAtLoginService.swift */; };
+		A50100010000000000000016 /* MenuBarLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6E253D0CAD406E71EF1C6A /* MenuBarLabel.swift */; };
+		A50100010000000000000017 /* SessionCountdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B50714E6366692FE779346 /* SessionCountdown.swift */; };
+		A50100010000000000000018 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1869A7F837FEDD728447129E /* SettingsView.swift */; };
+		A50100010000000000000019 /* SleepAssertionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06E6B020296F9EDED0F981D9 /* SleepAssertionManager.swift */; };
+		A5010001000000000000001A /* WakeDuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA91F4653F2590331B6EF11 /* WakeDuration.swift */; };
+		A5010001000000000000001B /* WakeMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4C87C413DC4EA7DF709DA43 /* WakeMode.swift */; };
+		A5010001000000000000001C /* WakeSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CB2B5B31CE5A02039599530 /* WakeSession.swift */; };
+		A5010001000000000000001D /* WakeSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D58CB289888F69AB9A15585 /* WakeSessionManager.swift */; };
+		A5010001000000000000001E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = BFB4B62AE7D63EA0B001F58C /* Localizable.xcstrings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,6 +164,10 @@
 		1ED8F3E7D59714E0B1380086 /* SessionPresentationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPresentationTests.swift; sourceTree = "<group>"; };
 		51EB90995773999E78682866 /* UpdaterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterService.swift; sourceTree = "<group>"; };
 		7B498BC70EEA95E8FD6C97CC /* AppActivation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppActivation.swift; sourceTree = "<group>"; };
+		A50100020000000000000002 /* KiplessAppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KiplessAppStore.swift; sourceTree = "<group>"; };
+		A50100020000000000000005 /* KiplessAppStore.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KiplessAppStore.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A50100020000000000000006 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A50100020000000000000007 /* KiplessAppStore.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = KiplessAppStore.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -279,11 +301,22 @@
 			isa = PBXGroup;
 			children = (
 				D8AB35931781E0785B5C47F5 /* Kipless.app */,
+				A50100020000000000000005 /* KiplessAppStore.app */,
 				2EB140E8A44AF797E0E892E2 /* KiplessPowerTestHelper */,
 				7A53AC756E968E4FDF2ED328 /* KiplessSleepHelper */,
 				1F88C754A0685BFCD92B8D63 /* KiplessTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A50100030000000000000008 /* KiplessAppStore */ = {
+			isa = PBXGroup;
+			children = (
+				A50100020000000000000002 /* KiplessAppStore.swift */,
+				A50100020000000000000006 /* Info.plist */,
+				A50100020000000000000007 /* KiplessAppStore.entitlements */,
+			);
+			path = KiplessAppStore;
 			sourceTree = "<group>";
 		};
 		DA3F1F6FA0833C01D6768EDA /* Models */ = {
@@ -301,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				030A99AF8BD3B5679090E34C /* Kipless */,
+				A50100030000000000000008 /* KiplessAppStore */,
 				3B4CDCE25254BDB55398966D /* KiplessPowerTestHelper */,
 				59117CA0DBCAAA1C6973144C /* KiplessSleepHelper */,
 				952BA4ACF3D09F3392981F38 /* KiplessTests */,
@@ -386,6 +420,24 @@
 			productReference = 1F88C754A0685BFCD92B8D63 /* KiplessTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		A50100040000000000000009 /* KiplessAppStore */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A5010005000000000000000A /* Build configuration list for PBXNativeTarget "KiplessAppStore" */;
+			buildPhases = (
+				A5010006000000000000000B /* Sources */,
+				A5010006000000000000000C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KiplessAppStore;
+			packageProductDependencies = (
+			);
+			productName = KiplessAppStore;
+			productReference = A50100020000000000000005 /* KiplessAppStore.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -411,6 +463,10 @@
 					C9CC1C04687475B150B52F46 = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Manual;
+					};
+					A50100040000000000000009 = {
+						DevelopmentTeam = ZMK8PL8T8J;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -441,6 +497,7 @@
 			projectRoot = "";
 			targets = (
 				C51FEC532DB9255DDDEB5EB1 /* Kipless */,
+				A50100040000000000000009 /* KiplessAppStore */,
 				0874659FF2F1348239BDB166 /* KiplessPowerTestHelper */,
 				56179D76F80BE2C69F40EB63 /* KiplessSleepHelper */,
 				C9CC1C04687475B150B52F46 /* KiplessTests */,
@@ -455,6 +512,15 @@
 			files = (
 				CB629B469FCE42E9BD7A14A1 /* Assets.xcassets in Resources */,
 				91B3852DF883100E687003EB /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A5010006000000000000000C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A50100010000000000000004 /* Assets.xcassets in Resources */,
+				A5010001000000000000001E /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -530,6 +596,29 @@
 				795DD465B3FFFDD906BC1E46 /* SleepOverrideController.swift in Sources */,
 				2F93439A073E66632A18758C /* SleepOverrideModels.swift in Sources */,
 				523488BEF87829318E5A9495 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A5010006000000000000000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A50100010000000000000010 /* SessionPresentation.swift in Sources */,
+				A50100010000000000000011 /* AppActivation.swift in Sources */,
+				A50100010000000000000012 /* KiplessLayout.swift in Sources */,
+				A50100010000000000000013 /* KiplessPopoverView.swift in Sources */,
+				A50100010000000000000014 /* KiplessStrings.swift in Sources */,
+				A50100010000000000000015 /* LaunchAtLoginService.swift in Sources */,
+				A50100010000000000000016 /* MenuBarLabel.swift in Sources */,
+				A50100010000000000000017 /* SessionCountdown.swift in Sources */,
+				A50100010000000000000018 /* SettingsView.swift in Sources */,
+				A50100010000000000000019 /* SleepAssertionManager.swift in Sources */,
+				A5010001000000000000001A /* WakeDuration.swift in Sources */,
+				A5010001000000000000001B /* WakeMode.swift in Sources */,
+				A5010001000000000000001C /* WakeSession.swift in Sources */,
+				A5010001000000000000001D /* WakeSessionManager.swift in Sources */,
+				A50100010000000000000001 /* KiplessAppStore.swift in Sources */,
+				A50100010000000000000003 /* PowerAssertionDriver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -826,6 +915,71 @@
 			};
 			name = Debug;
 		};
+		A5010007000000000000000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = KiplessAppStore/KiplessAppStore.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = ZMK8PL8T8J;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = KiplessAppStore/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kipless;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless.mas;
+				PRODUCT_NAME = KiplessAppStore;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = (
+					DEBUG,
+					KIPLESS_APP_STORE,
+				);
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		A5010007000000000000000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_ENTITLEMENTS = KiplessAppStore/KiplessAppStore.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = ZMK8PL8T8J;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = KiplessAppStore/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Kipless;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kaoru.kipless.mas;
+				PRODUCT_NAME = KiplessAppStore;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = KIPLESS_APP_STORE;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -861,6 +1015,15 @@
 			buildConfigurations = (
 				AEFF0435D582ECE6C5A89AFB /* Debug */,
 				A3B36197569D74EA4D4DA876 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A5010005000000000000000A /* Build configuration list for PBXNativeTarget "KiplessAppStore" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A5010007000000000000000D /* Debug */,
+				A5010007000000000000000E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
