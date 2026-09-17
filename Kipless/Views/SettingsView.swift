@@ -1,6 +1,11 @@
 import AppKit
 import SwiftUI
 
+private enum SettingsLinks {
+    static let policyURL = URL(string: "https://shiinalabs.com/kipless/privacy")!
+    static let supportURL = URL(string: "https://github.com/ShiinaLabs/Kipless/issues")!
+}
+
 enum SettingsCopy {
     static var launchAtLoginDescription: String {
         String(localized: LocalizedStringResource.settingsLaunchAtLoginDescription)
@@ -388,9 +393,21 @@ struct SettingsContentView: View {
                 Text(SettingsCopy.aboutDescription)
                     .font(.system(size: 12, weight: .medium))
 
-                Text(LocalizedStringResource.settingsAboutPrivacy)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 3) {
+                    Link(destination: SettingsLinks.policyURL) {
+                        Text(LocalizedStringResource.settingsAboutPrivacy)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
+                            .underline()
+                    }
+
+                    Link(destination: SettingsLinks.supportURL) {
+                        Text(LocalizedStringResource.settingsAboutSupport)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
+                            .underline()
+                    }
+                }
             }
 
             Spacer(minLength: 12)

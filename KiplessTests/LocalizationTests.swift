@@ -120,12 +120,11 @@ final class LocalizationTests: XCTestCase {
         )
     }
 
-    /// The privacy line is the one piece of copy an update check can turn into
-    /// a lie, so its exact wording is pinned here.
+    /// The privacy line must describe the optional update path accurately.
     func testPrivacyCopyMatchesWhatTheAppActuallyDoes() {
         XCTAssertEqual(
             String(localized: LocalizedStringResource.settingsAboutPrivacy),
-            "No accounts, no telemetry. It only goes online when you ask it to."
+            "No accounts, no telemetry. Kipless does not collect personal data."
         )
     }
 

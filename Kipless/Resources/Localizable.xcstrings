@@ -2607,63 +2607,78 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No accounts, no telemetry. It only goes online when you ask it to."
+            "value": "No accounts, no telemetry. Kipless does not collect personal data."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无账户、无遥测。只有你要求时才联网。"
+            "value": "无账户、无遥测。Kipless 不收集个人数据。"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アカウントもテレメトリもありません。接続するのは、あなたが求めたときだけです。"
+            "value": "アカウントもテレメトリもありません。Kipless は個人データを収集しません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계정도 텔레메트리도 없습니다. 연결은 요청할 때만 이루어집니다."
+            "value": "계정도 텔레메트리도 없습니다. Kipless는 개인 데이터를 수집하지 않습니다."
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無帳號、無遙測。只有你要求時才連線。"
+            "value": "無帳號、無遙測。Kipless 不會收集個人資料。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Konten, keine Telemetrie. Verbindet sich nur, wenn du es verlangst."
+            "value": "Keine Konten, keine Telemetrie. Kipless erfasst keine personenbezogenen Daten."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun compte, aucune télémétrie. Ne se connecte que si vous le demandez."
+            "value": "Aucun compte, aucune télémétrie. Kipless ne collecte pas de données personnelles."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin cuentas ni telemetría. Solo se conecta cuando lo pides."
+            "value": "Sin cuentas ni telemetría. Kipless no recopila datos personales."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun account, nessuna telemetria. Si connette solo quando lo chiedi."
+            "value": "Nessun account, nessuna telemetria. Kipless non raccoglie dati personali."
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sem contas, sem telemetria. Só se conecta quando você pede."
+            "value": "Sem contas, sem telemetria. O Kipless não coleta dados pessoais."
           }
         }
+      }
+    },
+    "settings.about.support": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Support" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "支持" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "サポート" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "지원" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "支援" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Support" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Assistance" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Soporte" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Supporto" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Suporte" } }
       }
     },
     "settings.about.version": {
