@@ -28,6 +28,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Kaoru. Licensed under MPL-2.0.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>SUFeedURL</key>
 	<string>https://github.com/ShiinaLabs/Kipless/releases/latest/download/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
