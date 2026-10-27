@@ -4,7 +4,7 @@ import XCTest
 final class SleepOverrideSystemStateTests: XCTestCase {
     func testParsesSleepDisabledZero() {
         XCTAssertEqual(
-            SleepOverrideStateParser.parse("System-wide power settings:\n SleepDisabled 0\n"),
+            SleepOverrideStateParser.parse("System-wide power settings:\n SleepDisabled 0"),
             .disabled
         )
     }
@@ -12,6 +12,21 @@ final class SleepOverrideSystemStateTests: XCTestCase {
     func testParsesSleepDisabledOne() {
         XCTAssertEqual(
             SleepOverrideStateParser.parse("System-wide power settings:\n SleepDisabled 1\n"),
+            .enabled
+        )
+    }
+
+    func testExplicitStateIgnoresUnrelatedSettingValueFormats() {
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\n SleepDisabled 0\n futuremode quiet\n hibernatefile /var/vm/image\n futurecount 42\nCurrently in use:\n sleep 1\n futurecurrent mode-x\n"
+            ),
+            .disabled
+        )
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\n SleepDisabled 1\n futuremode quiet\n hibernatefile /var/vm/image\n futurecount 42\nCurrently in use:\n sleep 1\n futurecurrent mode-x\n"
+            ),
             .enabled
         )
     }
@@ -37,9 +52,18 @@ final class SleepOverrideSystemStateTests: XCTestCase {
     func testCurrentSettingsAcceptAdditionalVersionSpecificFields() {
         XCTAssertEqual(
             SleepOverrideStateParser.parse(
-                "System-wide power settings:\nCurrently in use:\n sleep 1\n futureversionkey 7\n"
+                "System-wide power settings:\nCurrently in use:\n sleep 1\n futuremode quiet\n futurepath /var/vm/new-image\n futurecount 7\n"
             ),
             .disabled
+        )
+    }
+
+    func testSleepDisabledInCurrentlyInUseSectionIsNotSystemWideState() {
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\nCurrently in use:\n SleepDisabled 1\n sleep 1\n"
+            ),
+            .unknown
         )
     }
 
