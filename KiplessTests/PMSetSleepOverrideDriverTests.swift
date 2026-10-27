@@ -5,7 +5,7 @@ final class PMSetSleepOverrideDriverTests: XCTestCase {
     func testEnableUsesOnlyFixedEnableAndVerificationOperations() throws {
         let runner = RecordingPMSetRunner(outputs: [
             .enable: [""],
-            .readState: ["SleepDisabled 1"]
+            .readState: ["System-wide power settings:\n SleepDisabled 1\n"]
         ])
         let driver = PMSetSleepOverrideDriver(runner: runner)
 
@@ -17,7 +17,7 @@ final class PMSetSleepOverrideDriverTests: XCTestCase {
     func testDisableUsesOnlyFixedDisableAndVerificationOperations() throws {
         let runner = RecordingPMSetRunner(outputs: [
             .disable: [""],
-            .readState: ["SleepDisabled 0"]
+            .readState: ["System-wide power settings:\n SleepDisabled 0\n"]
         ])
         let driver = PMSetSleepOverrideDriver(runner: runner)
 
@@ -28,7 +28,7 @@ final class PMSetSleepOverrideDriverTests: XCTestCase {
 
     func testReadStateReturnsParsedState() throws {
         let runner = RecordingPMSetRunner(outputs: [
-            .readState: ["SleepDisabled 1"]
+            .readState: ["System-wide power settings:\n SleepDisabled 1\n"]
         ])
         let driver = PMSetSleepOverrideDriver(runner: runner)
 
@@ -36,10 +36,60 @@ final class PMSetSleepOverrideDriverTests: XCTestCase {
         XCTAssertEqual(runner.operations, [.readState])
     }
 
+    func testReadStateTreatsMissingSleepDisabledAsNotDisabledInValidOutput() throws {
+        let runner = RecordingPMSetRunner(outputs: [
+            .readState: [
+                "System-wide power settings:\n DestroyFVKeyOnStandby\t\t0\n VACTDisabled\t\t0\n"
+            ]
+        ])
+        let driver = PMSetSleepOverrideDriver(runner: runner)
+
+        XCTAssertFalse(try driver.readState())
+        XCTAssertEqual(runner.operations, [.readState])
+    }
+
+    func testControllerAcquiresAndReleasesWhenSleepDisabledIsOmittedAtBaseline() throws {
+        let normalOutput =
+            "System-wide power settings:\n DestroyFVKeyOnStandby\t\t0\n VACTDisabled\t\t0\n"
+        let enabledOutput = "System-wide power settings:\n SleepDisabled 1\n"
+        let runner = RecordingPMSetRunner(outputs: [
+            .readState: [normalOutput, enabledOutput, enabledOutput, normalOutput, normalOutput],
+            .enable: [""],
+            .disable: [""]
+        ])
+        let driver = PMSetSleepOverrideDriver(runner: runner)
+        let controller = SleepOverrideController(driver: driver)
+
+        try controller.acquireOverride()
+        XCTAssertTrue(controller.hasLease)
+        XCTAssertEqual(
+            controller.ownership,
+            SleepOverrideOwnership(baselineWasDisabled: false, modifiedByKipless: true)
+        )
+
+        try controller.releaseOverride()
+
+        XCTAssertFalse(controller.hasLease)
+        XCTAssertEqual(
+            runner.operations,
+            [.readState, .enable, .readState, .readState, .disable, .readState, .readState]
+        )
+    }
+
     func testUnknownVerificationStateFailsTheWrite() {
         let runner = RecordingPMSetRunner(outputs: [
             .enable: [""],
             .readState: ["SleepDisabled maybe"]
+        ])
+        let driver = PMSetSleepOverrideDriver(runner: runner)
+
+        XCTAssertThrowsError(try driver.enable())
+    }
+
+    func testWrongVerificationStateFailsTheWrite() {
+        let runner = RecordingPMSetRunner(outputs: [
+            .enable: [""],
+            .readState: ["System-wide power settings:\n SleepDisabled 0\n"]
         ])
         let driver = PMSetSleepOverrideDriver(runner: runner)
 
