@@ -25,6 +25,45 @@ final class SleepOverrideSystemStateTests: XCTestCase {
         )
     }
 
+    func testIssueOutputWithCurrentlyInUseSleepSettingsAndNoSleepDisabledIsDisabled() {
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\nCurrently in use:\n sleep 1 (sleep prevented by powerd, Kipless, sharingd)\n"
+            ),
+            .disabled
+        )
+    }
+
+    func testCurrentSettingsAcceptAdditionalVersionSpecificFields() {
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\nCurrently in use:\n sleep 1\n futureversionkey 7\n"
+            ),
+            .disabled
+        )
+    }
+
+    func testIndentedPermissionErrorIsUnknown() {
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\n permission denied\n"
+            ),
+            .unknown
+        )
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\nCurrently in use:\n permission denied\n"
+            ),
+            .unknown
+        )
+        XCTAssertEqual(
+            SleepOverrideStateParser.parse(
+                "System-wide power settings:\n futureversionkey 7\n"
+            ),
+            .unknown
+        )
+    }
+
     func testEmptyUnrecognizedAndIncompleteSettingsOutputIsUnknown() {
         XCTAssertEqual(SleepOverrideStateParser.parse(""), .unknown)
         XCTAssertEqual(SleepOverrideStateParser.parse("pmset output not recognized"), .unknown)
